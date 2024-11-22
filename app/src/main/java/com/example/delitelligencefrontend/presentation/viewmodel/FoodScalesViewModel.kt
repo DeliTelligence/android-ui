@@ -6,7 +6,7 @@ https://chatgpt.com
 prompt: 'How to build a view model in android, Im using jetpack compose, Dagger Hilt and im using this Kotlin Interface
 package com.example.delitelligencefrontend.domain
 
-import com.example.delitelligencefrontend.data.WeightResponse
+import com.example.delitelligencefrontend.model.WeightResponse
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
@@ -27,19 +27,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.delitelligencefrontend.model.StatusResponse
+import com.example.delitelligencefrontend.domain.WeightApiService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.*
-import org.json.JSONObject
-import java.io.IOException
+import retrofit2.Response
+import retrofit2.Retrofit
 import javax.inject.Inject
 
 @HiltViewModel
-class FoodScalesViewModel @Inject constructor() : ViewModel() {
+class FoodScalesViewModel @Inject constructor(
+    private val retrofit: Retrofit
+) : ViewModel() {
 
-    private val client = OkHttpClient()
+    private val weightApiService: WeightApiService = retrofit.create(WeightApiService::class.java)
 
     private val _weight = MutableLiveData<Double>()
     val weight: LiveData<Double> get() = _weight
@@ -48,96 +49,135 @@ class FoodScalesViewModel @Inject constructor() : ViewModel() {
     val status: LiveData<String> get() = _status
 
     val loadingState = MutableLiveData<Boolean>()
-    val startedState = MutableLiveData<Boolean>()
+    val connectedState = MutableLiveData<Boolean>()
+    val notificationsEnabledState = MutableLiveData<Boolean>()
 
     init {
-        startedState.value = false // Ensure it starts as false
+        connectedState.value = false
+        notificationsEnabledState.value = false
+
+        connectToScale()
     }
 
-    fun startWeightReading() {
+    fun connectToScale() {
         loadingState.value = true
-        _status.value = "Starting weight reading..."
+        _status.value = "Connecting to scale..."
         viewModelScope.launch {
             try {
-                val response = startWeightReadingRequest()
-                if (response.isSuccessful) {
-                    Log.d("FoodScalesViewModel", "Weight reading started successfully")
-                    _status.postValue("Weight reading started")
-                    loadingState.postValue(false)
-                    startedState.postValue(true) // Mark that we have started reading
-                } else {
-                    Log.e("FoodScalesViewModel", "Failed to start weight reading: ${response.code}")
-                    _status.postValue("Failed to start weight reading: ${response.code}")
-                    loadingState.postValue(false)
-                    startedState.postValue(false)
-                }
-            } catch (e: IOException) {
-                Log.e("FoodScalesViewModel", "Network Error: ${e.message}")
-                _status.postValue("Network Error: ${e.message}")
+                val response = weightApiService.connectToScale()
+                handleResponse(response, "Connected to scale", "Failed to connect to scale")
+                connectedState.postValue(response.isSuccessful)
+            } catch (e: Exception) {
+                handleError("Network Error: ${e.message}")
+                connectedState.postValue(false)
+            } finally {
                 loadingState.postValue(false)
-                startedState.postValue(false)
             }
         }
     }
 
-    private suspend fun startWeightReadingRequest(): Response {
-        return withContext(Dispatchers.IO) {
-            val request = Request.Builder()
-                .url("http://172.20.176.1:5000/start")
-                .post(RequestBody.create(null, ByteArray(0)))
-                .build()
-            client.newCall(request).execute()
+    fun enableNotifications() {
+        if (connectedState.value == true) {
+            loadingState.value = true
+            _status.value = "Enabling notifications..."
+            viewModelScope.launch {
+                try {
+                    val response = weightApiService.enableNotifications()
+                    handleResponse(response, "Notifications enabled", "Failed to enable notifications")
+                    notificationsEnabledState.postValue(response.isSuccessful)
+                } catch (e: Exception) {
+                    handleError("Network Error: ${e.message}")
+                    notificationsEnabledState.postValue(false)
+                } finally {
+                    loadingState.postValue(false)
+                }
+            }
+        } else {
+            _status.value = "Not connected to scale"
         }
     }
 
     fun fetchWeightData() {
-        if (startedState.value == true) {
+        if (connectedState.value == true && notificationsEnabledState.value == true) {
             loadingState.value = true
-            viewModelScope.launch(Dispatchers.IO) {
-                val request = Request.Builder()
-                    .url("http://172.20.176.1:5000/weight")
-                    .get()
-                    .build()
-
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        Log.e("FoodScalesViewModel", "Error fetching weight data: ${e.message}")
-                        _status.postValue("Error fetching weight data")
-                        loadingState.postValue(false)
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        try {
-                            response.use {
-                                if (it.isSuccessful) {
-                                    val responseData = it.body?.string()
-                                    if (responseData != null) {
-                                        val jsonObject = JSONObject(responseData)
-                                        val weight = jsonObject.getDouble("weight")
-                                        _weight.postValue(weight)
-                                        Log.d("FoodScalesViewModel", "Weight successfully fetched: $weight")
-                                    } else {
-                                        Log.e("FoodScalesViewModel", "Response body is null")
-                                        _status.postValue("Error: Response body is null")
-                                    }
-                                } else {
-                                    Log.e("FoodScalesViewModel", "Error response code: ${it.code}")
-                                    _status.postValue("Error fetching weight data: ${it.code}")
-                                }
-                            }
-                        } catch (e: Exception) {
-                            Log.e("FoodScalesViewModel", "Exception in onResponse: ${e.message}")
-                            _status.postValue("Error parsing weight data")
-                            loadingState.postValue(false)
-                        } finally {
-                            loadingState.postValue(false)
+            viewModelScope.launch {
+                try {
+                    val response = weightApiService.getWeightData()
+                    if (response.isSuccessful) {
+                        response.body()?.let { weightResponse ->
+                            _weight.postValue(weightResponse.weight.toDouble())
+                            Log.d("FoodScalesViewModel", "Weight successfully fetched: ${weightResponse.weight}")
+                        } ?: run {
+                            handleError("Error: Response body is null")
                         }
+                    } else {
+                        handleError("Error fetching weight data: ${response.code()}")
                     }
-                })
+                } catch (e: Exception) {
+                    handleError("Error fetching weight data: ${e.message}")
+                } finally {
+                    loadingState.postValue(false)
+                }
             }
         } else {
-            Log.e("FoodScalesViewModel", "Weight reading not started")
-            _status.postValue("Weight reading has not been started")
+            _status.value = "Not connected or notifications not enabled"
         }
+    }
+
+    fun tareScale() {
+        if (connectedState.value == true) {
+            loadingState.value = true
+            _status.value = "Taring scale..."
+            viewModelScope.launch {
+                try {
+                    val response = weightApiService.tareScale()
+                    handleResponse(response, "Scale tared", "Failed to tare scale")
+                } catch (e: Exception) {
+                    handleError("Network Error: ${e.message}")
+                } finally {
+                    loadingState.postValue(false)
+                }
+            }
+        } else {
+            _status.value = "Not connected to scale"
+        }
+    }
+
+    fun disconnectFromScale() {
+        if (connectedState.value == true) {
+            loadingState.value = true
+            _status.value = "Disconnecting from scale..."
+            viewModelScope.launch {
+                try {
+                    val response = weightApiService.disconnectFromScale()
+                    handleResponse(response, "Disconnected from scale", "Failed to disconnect from scale")
+                    if (response.isSuccessful) {
+                        connectedState.postValue(false)
+                        notificationsEnabledState.postValue(false)
+                    }
+                } catch (e: Exception) {
+                    handleError("Network Error: ${e.message}")
+                } finally {
+                    loadingState.postValue(false)
+                }
+            }
+        } else {
+            _status.value = "Not connected to scale"
+        }
+    }
+
+    private fun handleResponse(response: Response<StatusResponse>, successMessage: String, errorMessage: String) {
+        if (response.isSuccessful) {
+            Log.d("FoodScalesViewModel", successMessage)
+            _status.postValue(successMessage)
+        } else {
+            Log.e("FoodScalesViewModel", "$errorMessage: ${response.code()}")
+            _status.postValue("$errorMessage: ${response.code()}")
+        }
+    }
+
+    private fun handleError(errorMessage: String) {
+        Log.e("FoodScalesViewModel", errorMessage)
+        _status.postValue(errorMessage)
     }
 }

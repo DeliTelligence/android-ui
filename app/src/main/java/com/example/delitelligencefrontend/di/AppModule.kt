@@ -9,8 +9,11 @@ package com.example.delitelligencefrontend.di
 
 import com.apollographql.apollo.ApolloClient
 import com.example.delitelligencefrontend.data.ApolloEmployeeClient
+import com.example.delitelligencefrontend.data.ApolloProductClient
 import com.example.delitelligencefrontend.domain.EmployeeClient
 import com.example.delitelligencefrontend.domain.GetEmployeesUseCase
+import com.example.delitelligencefrontend.domain.GetProductsUseCase
+import com.example.delitelligencefrontend.domain.ProductClient
 import com.example.delitelligencefrontend.domain.WeightApiService
 
 import dagger.Module
@@ -41,7 +44,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://172.20.176.1:5000")
+            .baseUrl("http://192.168.1.12:5000")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -57,7 +60,7 @@ object AppModule {
     @Singleton
     fun provideApolloClient(): ApolloClient {
         return ApolloClient.Builder()
-            .serverUrl("http://10.65.208.2:8080/graphql")
+            .serverUrl("http://192.168.1.12:8080/graphql")
             .build()
     }
 
@@ -71,6 +74,18 @@ object AppModule {
     @Singleton
     fun provideGetEmployeesUseCase(employeeClient: EmployeeClient): GetEmployeesUseCase {
         return GetEmployeesUseCase(employeeClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProductClient(apolloClient: ApolloClient): ProductClient {
+        return ApolloProductClient(apolloClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetProductsUseCase(productClient: ProductClient): GetProductsUseCase {
+        return GetProductsUseCase(productClient)
     }
 
 

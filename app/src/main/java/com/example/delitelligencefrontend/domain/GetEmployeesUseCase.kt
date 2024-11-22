@@ -5,6 +5,8 @@ All code here is adapted from the video*/
 
 package com.example.delitelligencefrontend.domain
 
+import com.example.delitelligencefrontend.model.Employee
+
 class GetEmployeesUseCase(
     private val employeeClient: EmployeeClient
 ) {

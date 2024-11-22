@@ -1,0 +1,28 @@
+query GetProductsByType($category: ProductType!) {
+    getProductsByType(category: $category) {
+        productName
+        productImage
+        productPrice
+        standardWeight
+        productType
+    }
+}
+query GetProductByID($id: ID!) {
+    getProductById(id: $id) {
+        productName
+        productImage
+        productPrice
+        standardWeight
+        productType
+    }
+}
+
+query GetAllProducts{
+    getAllProducts {
+        productName
+        productImage
+        productPrice
+        standardWeight
+        productType
+    }
+}

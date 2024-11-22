@@ -1,3 +1,45 @@
+type DeliSale {
+  id: ID!
+
+  employeeId: ID
+
+  salePrice: Float
+
+  saleDate: String
+
+  saleWeight: Float
+
+  saleTime: String
+
+  wastePerSale: Float
+
+  wastePerSaleValue: Float
+
+  differenceWeight: Float
+
+  saleType: SaleType
+
+  saleQuantity: Int
+}
+
+input DeliSaleInputDto {
+  employeeId: ID!
+
+  salePrice: Float!
+
+  saleWeight: Float!
+
+  wastePerSale: Float!
+
+  wastPerSaleValue: Float!
+
+  differenceWeight: Float!
+
+  saleType: SaleType!
+
+  saleQuantity: Int!
+}
+
 type Employee {
   id: ID!
 
@@ -34,8 +76,59 @@ type Mutation {
   deleteEmployee(id: ID!): String!
 }
 
+type Product {
+  id: ID!
+
+  productName: String
+
+  standardWeight: Float
+
+  productDescription: String
+
+  productPrice: Float
+
+  productType: ProductType
+
+  productImage: String
+}
+
+type ProductFetchDto {
+  productName: String
+
+  standardWeight: Float
+
+  productPrice: Float
+
+  productImage: String
+
+  """
+   Base64 encoded image data
+  """
+  productType: String
+}
+
+enum ProductType {
+  HOT_FOOD
+
+  COLD_FOOD
+
+  BREAD
+}
+
 type Query {
   getEmployees: [Employee]
+
+  getAllProducts: [ProductFetchDto]
+
+  getProductsByType(category: ProductType!): [ProductFetchDto]
+
+  getProductById(id: ID!): ProductFetchDto
+}
+
+enum SaleType {
+  WEIGHED
+
+  NOT_WEIGHED
 }
 
 type __Directive {
