@@ -19,9 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             DeliTelligenceFrontEndTheme {
                 Navigation(
-                    onBluetoothStateChanged = {
-                        // No operation or show some fallback UI
-                    }
+
                 )
             }
         }

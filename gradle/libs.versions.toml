@@ -17,8 +17,12 @@ accompanist_permissions = "0.28.0"
 okhttp_version = "4.9.1"
 retrofit_version = "2.9.0"
 runtimeLivedata = "1.7.5"
-
-
+composeMaterial3 = "1.0.0-alpha29"
+foundationAndroid = "1.7.4"
+coil = "2.1.0"
+accessibilityTestFramework = "4.1.1"
+foundationLayoutAndroid = "1.7.4"
+uiTestAndroid = "1.8.0-alpha06"  # Add Coil version
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -46,8 +50,12 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = 
 retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit_version" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp_version" }
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
-
-
+androidx-compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeMaterial3" }
+androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+accessibility-test-framework = { group = "com.google.android.apps.common.testing.accessibility.framework", name = "accessibility-test-framework", version.ref = "accessibilityTestFramework" }
+androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
+androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }  # Add Coil Compose
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -55,7 +63,3 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinAndroidKsp = { id = "com.google.devtools.ksp", version.ref ="kspVersion" }
 hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref ="hiltVersion" }
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
-
-
-
-

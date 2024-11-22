@@ -4,16 +4,28 @@
 
 package com.example.delitelligencefrontend.domain
 
-import com.example.delitelligencefrontend.data.WeightResponse
-import okhttp3.ResponseBody
+import com.example.delitelligencefrontend.model.StatusResponse
+import com.example.delitelligencefrontend.model.WeightResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface WeightApiService {
-    @POST("start")
-    suspend fun startWeightReading(): Response<ResponseBody>
+    @POST("connect")
+    suspend fun connectToScale(): Response<StatusResponse>
+
+    @POST("enable_notify")
+    suspend fun enableNotifications(): Response<StatusResponse>
+
+    @POST("disable_notify")
+    suspend fun disableNotifications(): Response<StatusResponse>
 
     @GET("weight")
     suspend fun getWeightData(): Response<WeightResponse>
+
+    @POST("tare")
+    suspend fun tareScale(): Response<StatusResponse>
+
+    @POST("disconnect")
+    suspend fun disconnectFromScale(): Response<StatusResponse>
 }

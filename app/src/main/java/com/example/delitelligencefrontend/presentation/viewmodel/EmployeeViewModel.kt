@@ -8,8 +8,7 @@ package com.example.delitelligencefrontend.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.delitelligencefrontend.domain.Employee
-import com.example.delitelligencefrontend.data.ApolloEmployeeClient
+import com.example.delitelligencefrontend.model.Employee
 import com.example.delitelligencefrontend.domain.GetEmployeesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

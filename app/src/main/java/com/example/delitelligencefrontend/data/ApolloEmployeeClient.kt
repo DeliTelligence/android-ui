@@ -5,12 +5,12 @@ Date 5/11/2024 accessed
 All code here is adapted from the video*/
 package com.example.delitelligencefrontend.data
 
-import android.util.Log
 import com.apollographql.apollo.ApolloClient
 import com.example.delitelligence.GetEmployeesQuery
 import com.example.delitelligence.type.EmployeeInputDto
-import com.example.delitelligencefrontend.domain.Employee
+import com.example.delitelligencefrontend.model.Employee
 import com.example.delitelligencefrontend.domain.EmployeeClient
+import com.example.delitelligencefrontend.model.mapper.toEmployee
 
 class ApolloEmployeeClient(
     private val apolloClient: ApolloClient

@@ -16,11 +16,11 @@ apollo {
 
 android {
     namespace = "com.example.delitelligencefrontend"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.delitelligencefrontend"
-        minSdk = 22
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -74,7 +74,22 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.accessibility.test.framework)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.ui.test.android)
+    implementation(libs.androidx.ui.test.android)
+    implementation(libs.androidx.foundation.layout.android)
     ksp(libs.hilt.compiler)
+
+    implementation(libs.coil.compose)  // Add Coil Compose for image loading
+
 
     implementation(libs.accompanist.permissions)
 

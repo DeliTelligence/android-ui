@@ -1,4 +1,4 @@
-package com.example.delitelligencefrontend.domain
+package com.example.delitelligencefrontend.model
 
 
 data class Employee(
