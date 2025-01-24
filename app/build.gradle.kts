@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlinAndroidKsp)
     alias(libs.plugins.hiltAndroid)
     alias(libs.plugins.apollo)
+    alias(libs.plugins.kotlinKapt)
 }
 
 
@@ -86,6 +87,7 @@ dependencies {
     implementation(libs.androidx.ui.test.android)
     implementation(libs.androidx.ui.test.android)
     implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.foundation.layout.android)
     ksp(libs.hilt.compiler)
 
     implementation(libs.coil.compose)  // Add Coil Compose for image loading
@@ -101,7 +103,7 @@ dependencies {
     implementation(libs.apollo.runtime)
 
     implementation(libs.hilt.navigation.compose) // Using version catalog for Hilt Navigation Compose
-
+    implementation(libs.apollo.api)
 
     implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
@@ -111,4 +113,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.mapstruct)
+    kapt(libs.mapstruct.processor) // Use kapt for Mapstruct processor
 }
+

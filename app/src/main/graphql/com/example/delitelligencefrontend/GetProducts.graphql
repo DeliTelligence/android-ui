@@ -1,28 +1,46 @@
 query GetProductsByType($category: ProductType!) {
     getProductsByType(category: $category) {
+        id
         productName
-        productImage
+        productImageDto
         productPrice
-        standardWeight
+        standardWeightProducts {
+            standardWeightValue
+            standardWeight {
+                standardType
+            }
+        }
         productType
     }
 }
 query GetProductByID($id: ID!) {
     getProductById(id: $id) {
+        id
         productName
-        productImage
         productPrice
-        standardWeight
+        productImageDto
+        standardWeightProducts {
+            standardWeightValue
+            standardWeight {
+                standardType
+            }
+        }
         productType
     }
 }
 
 query GetAllProducts{
     getAllProducts {
+        id
         productName
-        productImage
+        productImageDto
         productPrice
-        standardWeight
+        standardWeightProducts {
+            standardWeightValue
+            standardWeight {
+                standardType
+            }
+        }
         productType
     }
 }

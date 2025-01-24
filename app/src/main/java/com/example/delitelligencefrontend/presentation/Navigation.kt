@@ -8,10 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.delitelligencefrontend.presentation.inventory.AddToInventoryScreen
+import com.example.delitelligencefrontend.presentation.inventory.CheckInventoryScreen
+import com.example.delitelligencefrontend.presentation.inventory.InventoryScreen
 import com.example.delitelligencefrontend.presentation.mainmenu.HotFoodToGoScreen
 import com.example.delitelligencefrontend.presentation.mainmenu.MakeProductScreen
 import com.example.delitelligencefrontend.presentation.mainmenu.MakeSaladScreen
 import com.example.delitelligencefrontend.presentation.mainmenu.StoreScreen
+import com.example.delitelligencefrontend.presentation.mainmenu.StoreScreen
+
 
 @Composable
 fun Navigation() {
@@ -37,7 +42,7 @@ fun Navigation() {
         composable(Screen.InventoryScreen.route) {
             BaseScreen(navController) {
                 // Replace with your InventoryScreen when it's implemented
-                Text("Inventory Screen")
+                InventoryScreen(navController)
             }
         }
         composable(Screen.HotFoodToGoScreen.route) {
@@ -50,6 +55,19 @@ fun Navigation() {
             BaseScreen(navController) {
                 // Replace with your InventoryScreen when it's implemented
                 MakeSaladScreen()
+            }
+        }
+        composable(Screen.AddToInventoryScreen.route) {
+            BaseScreen(navController) {
+                // Replace with your InventoryScreen when it's implemented
+                AddToInventoryScreen()
+            }
+        }
+
+        composable(Screen.CheckInventoryScreen.route) {
+            BaseScreen(navController) {
+                // Replace with your InventoryScreen when it's implemented
+                CheckInventoryScreen()
             }
         }
 
@@ -67,6 +85,8 @@ sealed class Screen(val route: String) {
     object InventoryScreen : Screen("inventory_screen")
     object HotFoodToGoScreen : Screen("hot_food_to_go_screen")
     object MakeSaladScreen : Screen("make_salad_screen")
+    object AddToInventoryScreen : Screen("add_inventory_screen")
+    object CheckInventoryScreen : Screen("check_inventory_screen")
 
 }
 

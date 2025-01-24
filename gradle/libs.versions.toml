@@ -12,7 +12,7 @@ hiltVersion = "2.51.1"
 kspVersion = "1.9.0-1.0.13"
 navigationCompose = "2.8.3"
 apollo = "4.0.0"
-hiltNavigationCompose = "1.0.0"  # Add this line for Hilt Navigation Compose
+hiltNavigationCompose = "1.0.0"
 accompanist_permissions = "0.28.0"
 okhttp_version = "4.9.1"
 retrofit_version = "2.9.0"
@@ -22,7 +22,8 @@ foundationAndroid = "1.7.4"
 coil = "2.1.0"
 accessibilityTestFramework = "4.1.1"
 foundationLayoutAndroid = "1.7.4"
-uiTestAndroid = "1.8.0-alpha06"  # Add Coil version
+uiTestAndroid = "1.8.0-alpha06"
+mapstructVersion = "1.5.2.Final"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,8 +43,9 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 hilt-android = { group = "com.google.dagger", name = "hilt-android" , version.ref = "hiltVersion"}
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler" , version.ref = "hiltVersion"}
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
-apollo-runtime = { module = "com.apollographql.apollo:apollo-runtime", version.ref = "apollo"}
-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }  # Add this line for Hilt Navigation Compose
+apollo-runtime = { group = "com.apollographql.apollo", name = "apollo-runtime", version.ref = "apollo"}
+apollo-api = { group = "com.apollographql.apollo", name = "apollo-api", version.ref = "apollo" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist_permissions" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp_version" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit_version" }
@@ -55,11 +57,14 @@ androidx-foundation-android = { group = "androidx.compose.foundation", name = "f
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 accessibility-test-framework = { group = "com.google.android.apps.common.testing.accessibility.framework", name = "accessibility-test-framework", version.ref = "accessibilityTestFramework" }
 androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
-androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }  # Add Coil Compose
+androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }
+mapstruct = { group = "org.mapstruct", name = "mapstruct", version.ref = "mapstructVersion" }
+mapstruct-processor = { group = "org.mapstruct", name = "mapstruct-processor", version.ref = "mapstructVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlinAndroidKsp = { id = "com.google.devtools.ksp", version.ref ="kspVersion" }
-hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref ="hiltVersion" }
+kotlinAndroidKsp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
+hiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
+kotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }

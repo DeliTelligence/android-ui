@@ -30,7 +30,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.delitelligencefrontend.enumformodel.PortionType
+import com.example.delitelligencefrontend.enumformodel.SaleType
 import com.example.delitelligencefrontend.model.DeliProduct
+import com.example.delitelligencefrontend.model.DeliSale
 import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.presentation.viewmodel.ProductsViewModel
 import java.util.UUID
@@ -45,11 +48,31 @@ fun HotFoodToGoScreen(
 
     val allProducts = hotFoodProducts + breakfastProducts  // Join the two lists
 
+    var currentDeliSale by remember { mutableStateOf<DeliSale?>(null) }
     var currentDeliProduct by remember { mutableStateOf<DeliProduct?>(null) }
     var finishedDeliProducts by remember { mutableStateOf<List<DeliProduct>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         productsViewModel.fetchAllProducts()
+    }
+    LaunchedEffect(currentDeliProduct) {
+        if (currentDeliProduct != null) {
+            // Create a new DeliSale or update the existing one with new product
+            currentDeliSale = DeliSale(
+                employeeId = "f8f67708-5d61-4ff5-a607-f5e03f3cb553",
+                deliProduct = currentDeliProduct!!,
+                salePrice = currentDeliProduct!!.calculateTotalPrice(),
+                saleWeight = 0.0, // Placeholder, you will set it when fetching weight data
+                wastePerSale = 0.0,
+                wastePerSaleValue = 0.0,
+                differenceWeight = 0.0,
+                saleType = SaleType.HOT_FOOD, // Adjust as per your logic
+                quantity = currentDeliProduct!!.totalQuantity(), // Assuming 1 for simplicity
+                handMade = true // Set based on your logic
+            )
+        } else {
+            currentDeliSale = null
+        }
     }
 
     Row(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -62,14 +85,11 @@ fun HotFoodToGoScreen(
                 onProductSelected = { product ->
                     currentDeliProduct = currentDeliProduct?.copy(
                         products = currentDeliProduct!!.products + product,
-                        deliProductPrice = currentDeliProduct!!.deliProductPrice + (product.productPrice?.toFloat() ?: 0f)
                     ) ?: DeliProduct(
-                        deliProductId = UUID.randomUUID().toString(),
+                        deliProduct = product,
                         products = listOf(product),
-                        combinedWeight = 0f,
-                        deliProductPrice = product.productPrice?.toFloat() ?: 0f,
-                        deliProductQuantity = 1,
-                        weightToPrice = false
+                        combinedWeight = 0.0,
+                        portionType = PortionType.QUANTITY
                     )
                 }
             )
@@ -85,7 +105,7 @@ fun HotFoodToGoScreen(
         ) {
             if (currentDeliProduct != null) {
                 Text(
-                    text = "Total Price: $${String.format("%.2f", currentDeliProduct!!.deliProductPrice)}",
+                    text = "Total Price: $${String.format("%.2f", currentDeliProduct!!.calculateTotalPrice())}",
                     style = MaterialTheme.typography.titleLarge
                 )
 
@@ -171,7 +191,7 @@ fun HotFoodProductCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            product.productImage?.let { base64Image ->
+            product.productImageDto?.let { base64Image ->
                 val bitmap = base64Image.toByteArrayOrNull()?.toBitmapOrNull()
                 if (bitmap != null) {
                     Image(

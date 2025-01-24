@@ -4,12 +4,13 @@ import com.example.delitelligencefrontend.enumformodel.SaleType
 
 data class DeliSale(
     val employeeId: String,
-    val salePrice: Float,
-    val saleWeight: Float,
-    val wastePerSale: Float,
-    val wastePerSaleValue: Float,
-    val differenceWeight: Float,
+    val deliProduct: DeliProduct,
+    val salePrice: Double,
+    val saleWeight: Double,
+    val wastePerSale: Double,
+    val wastePerSaleValue: Double,
+    val differenceWeight: Double,
     val saleType: SaleType,
-    val saleQuantity: Int,
-    val deliProduct: List<DeliProduct>
+    val quantity: Int,
+    val handMade: Boolean
 )

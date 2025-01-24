@@ -1,0 +1,3 @@
+mutation CreateDeliSale($input: DeliSaleInputDto!) {
+    createSale(input: $input)
+}
