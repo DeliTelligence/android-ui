@@ -1,11 +1,13 @@
 package com.example.delitelligencefrontend.model
 
 import com.example.delitelligencefrontend.enumformodel.ProductType
+import java.util.UUID
 
 data class Product(
+    val productId: String?,
     val productName: String?,
-    val standardWeight: Double?,
+    val standardWeightProducts: List<StandardWeightProduct>?,
     val productPrice: Double?,
-    val productImage: String?,
+    val productImageDto: String?,
     val productType: String?
 )

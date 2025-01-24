@@ -1,0 +1,8 @@
+query GetInventory{
+    getInventory {
+        productName
+        totalWeight
+        location
+        inventoryValue
+    }
+}

@@ -9,11 +9,21 @@ package com.example.delitelligencefrontend.di
 
 import com.apollographql.apollo.ApolloClient
 import com.example.delitelligencefrontend.data.ApolloEmployeeClient
+import com.example.delitelligencefrontend.data.ApolloInventoryClient
 import com.example.delitelligencefrontend.data.ApolloProductClient
+import com.example.delitelligencefrontend.data.ApolloSaleClient
+import com.example.delitelligencefrontend.data.ApolloSupplierClient
 import com.example.delitelligencefrontend.domain.EmployeeClient
 import com.example.delitelligencefrontend.domain.GetEmployeesUseCase
+import com.example.delitelligencefrontend.domain.GetInventoryUseCase
 import com.example.delitelligencefrontend.domain.GetProductsUseCase
+import com.example.delitelligencefrontend.domain.GetSupplierUseCase
+import com.example.delitelligencefrontend.domain.InventoryClient
+import com.example.delitelligencefrontend.domain.PostAdjustmentUseCase
+import com.example.delitelligencefrontend.domain.PostDeliSaleUseCase
 import com.example.delitelligencefrontend.domain.ProductClient
+import com.example.delitelligencefrontend.domain.SaleClient
+import com.example.delitelligencefrontend.domain.SupplierClient
 import com.example.delitelligencefrontend.domain.WeightApiService
 
 import dagger.Module
@@ -88,6 +98,46 @@ object AppModule {
         return GetProductsUseCase(productClient)
     }
 
+    @Provides
+    @Singleton
+    fun provideSaleClient(apolloClient: ApolloClient): SaleClient {
+        return ApolloSaleClient(apolloClient)
+    }
+
+    @Provides
+    @Singleton
+    fun providePostDeliSaleUseCase(saleClient: SaleClient): PostDeliSaleUseCase {
+        return PostDeliSaleUseCase(saleClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideInventoryClient(apolloClient: ApolloClient): InventoryClient {
+        return ApolloInventoryClient(apolloClient)
+    }
+
+    @Provides
+    @Singleton
+    fun getInventoryUseCase(inventoryClient: InventoryClient): GetInventoryUseCase {
+        return GetInventoryUseCase(inventoryClient)
+    }
+
+    @Provides
+    @Singleton
+    fun providePostAdjustmentUseCase(inventoryClient: InventoryClient): PostAdjustmentUseCase {
+        return PostAdjustmentUseCase(inventoryClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSupplierClient(apolloClient: ApolloClient): SupplierClient {
+        return ApolloSupplierClient(apolloClient)
+    }
+    @Provides
+    @Singleton
+    fun provideGetSuppliersUseCase(supplierClient: SupplierClient): GetSupplierUseCase {
+        return GetSupplierUseCase(supplierClient)
+    }
 
 
 }

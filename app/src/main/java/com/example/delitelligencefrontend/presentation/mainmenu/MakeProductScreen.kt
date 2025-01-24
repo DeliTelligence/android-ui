@@ -7,7 +7,6 @@ All code here is adapted from the video*/
 prompt: 'building a screen and dividing it into three quadrants top left, bottom left and Right and create product cards that I can fill with my objects
 that show the name and image. Also create a circle shape on the right quadrant that I can use to store the weight data retrieved from the scales'
 */
-
 package com.example.delitelligencefrontend.presentation.mainmenu
 
 import android.graphics.Bitmap
@@ -33,11 +32,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.delitelligencefrontend.enumformodel.PortionType
+import com.example.delitelligencefrontend.enumformodel.SaleType
 import com.example.delitelligencefrontend.model.DeliProduct
+import com.example.delitelligencefrontend.model.DeliSale
 import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.presentation.viewmodel.ProductsViewModel
-import java.util.UUID
 import kotlin.math.abs
+import java.util.*
 
 @Composable
 fun MakeProductScreen(
@@ -48,6 +50,7 @@ fun MakeProductScreen(
     val mainFillingProducts by productsViewModel.mainFillingProducts.collectAsState()
     val fillingProducts by productsViewModel.fillingProducts.collectAsState()
 
+    var currentDeliSale by remember { mutableStateOf<DeliSale?>(null) }
     var currentDeliProduct by remember { mutableStateOf<DeliProduct?>(null) }
     var finishedDeliProducts by remember { mutableStateOf<List<DeliProduct>>(emptyList()) }
 
@@ -55,7 +58,30 @@ fun MakeProductScreen(
         productsViewModel.fetchAllProducts()
     }
 
-    Row(modifier = Modifier.fillMaxSize()) {
+
+
+    LaunchedEffect(currentDeliProduct) {
+        Log.d("MakeProductScreen", "currentDeliProduct changed: $currentDeliProduct")
+        if (currentDeliProduct != null) {
+            currentDeliSale = DeliSale(
+                employeeId = "f8f67708-5d61-4ff5-a607-f5e03f3cb553",
+                deliProduct = currentDeliProduct!!,
+                salePrice = currentDeliProduct!!.calculateTotalPrice(),
+                saleWeight = 0.0, // Placeholder, you will set it when fetching weight data
+                wastePerSale = 0.0,
+                wastePerSaleValue = 0.0,
+                differenceWeight = 0.0,
+                saleType = SaleType.HOT_FOOD, // Adjust as per your logic
+                quantity = currentDeliProduct!!.totalQuantity(), // Assuming 1 for simplicity
+                handMade = true // Set based on your logic
+            )
+            productsViewModel.setCurrentDeliSale(currentDeliSale!!) // Ensure ViewModel gets updated
+        } else {
+            currentDeliSale = null
+        }
+    }
+
+    Row(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         // Left side (2 quadrants)
         Column(modifier = Modifier.weight(1f)) {
             // Top left quadrant
@@ -64,14 +90,18 @@ fun MakeProductScreen(
                 hotFoodProducts = hotFoodProducts,
                 selectedProduct = currentDeliProduct?.products?.firstOrNull(),
                 onProductSelected = { product ->
-                    currentDeliProduct = DeliProduct(
-                        deliProductId = UUID.randomUUID().toString(),
-                        products = listOf(product),
-                        combinedWeight = 0f,
-                        deliProductPrice = product.productPrice?.toFloat() ?: 0f,
-                        deliProductQuantity = 1,
-                        weightToPrice = false
-                    )
+                    if (currentDeliProduct == null) {
+                        currentDeliProduct = DeliProduct(
+                            deliProduct = product,
+                            products = emptyList(),
+                            combinedWeight = 0.0,
+                            portionType = PortionType.FILLING
+                        )
+                    } else {
+                        currentDeliProduct = currentDeliProduct?.copy(
+                            products = currentDeliProduct!!.products + product
+                        )
+                    }
                 }
             )
 
@@ -85,14 +115,12 @@ fun MakeProductScreen(
                     currentDeliProduct = currentDeliProduct,
                     onMainFillingSelected = { mainFilling ->
                         currentDeliProduct = currentDeliProduct?.copy(
-                            products = currentDeliProduct!!.products + mainFilling,
-                            deliProductPrice = currentDeliProduct!!.deliProductPrice + (mainFilling.productPrice?.toFloat() ?: 0f)
+                            products = currentDeliProduct!!.products + mainFilling
                         )
                     },
                     onFillingSelected = { filling ->
                         currentDeliProduct = currentDeliProduct?.copy(
-                            products = currentDeliProduct!!.products + filling,
-                            deliProductPrice = currentDeliProduct!!.deliProductPrice + (filling.productPrice?.toFloat() ?: 0f)
+                            products = currentDeliProduct!!.products + filling
                         )
                     }
                 )
@@ -109,22 +137,13 @@ fun MakeProductScreen(
                 onFinishProduct = {
                     currentDeliProduct?.let { deliProduct ->
                         finishedDeliProducts = finishedDeliProducts + deliProduct
-                        // Create a new DeliProduct
-                        currentDeliProduct = DeliProduct(
-                            deliProductId = UUID.randomUUID().toString(),
-                            products = emptyList(),
-                            combinedWeight = 0f,
-                            deliProductPrice = 0f,
-                            deliProductQuantity = 1,
-                            weightToPrice = false
-                        )
+                        currentDeliProduct = null
                     }
                 }
             )
         }
     }
 }
-
 
 @Composable
 fun TopLeftQuadrant(
@@ -187,7 +206,7 @@ fun BottomLeftQuadrant(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        if (currentDeliProduct?.products?.size == 1) {
+        if (currentDeliProduct?.deliProduct != null && currentDeliProduct.products.isNullOrEmpty()) {
             Text("Select Main Filling", style = MaterialTheme.typography.headlineSmall)
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -232,6 +251,13 @@ fun RightQuadrant(
     val isWeighing by productsViewModel.isWeighing.collectAsState()
     val scaleStatus by productsViewModel.scaleStatus.collectAsState()
     val isWeightErrorSignificant by productsViewModel.isWeightErrorSignificant.collectAsState()
+    val currentDeliSale by productsViewModel.currentDeliSale.collectAsState()
+
+//    LaunchedEffect(currentDeliProduct) {
+//        if (currentDeliProduct != null) {
+//            productsViewModel.updateCurrentDeliSale(currentDeliProduct)
+//        }
+//    }
 
     Column(
         modifier = Modifier
@@ -243,14 +269,14 @@ fun RightQuadrant(
         // Weight/Difference display circle
         Box(
             modifier = Modifier
-                .size(250.dp)  // Reduced size
+                .size(250.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ) {
             Box(
                 modifier = Modifier
-                    .size(230.dp)  // Reduced size
+                    .size(230.dp)
                     .clip(CircleShape)
                     .background(Color.White),
                 contentAlignment = Alignment.Center
@@ -269,7 +295,7 @@ fun RightQuadrant(
                 }
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.displayMedium,  // Reduced text size
+                    style = MaterialTheme.typography.displayMedium,
                     color = color
                 )
             }
@@ -281,12 +307,13 @@ fun RightQuadrant(
         // Weigh button
         Button(
             onClick = {
+
                 currentDeliProduct?.let { productsViewModel.fetchWeightData(it) }
             },
             enabled = isScaleConnected && !isWeighing && currentDeliProduct != null,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)  // Reduced height
+                .height(48.dp)
         ) {
             Text(if (isWeighing) "Weighing..." else "Weigh")
         }
@@ -297,28 +324,39 @@ fun RightQuadrant(
             enabled = isScaleConnected,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)  // Reduced height
+                .height(48.dp)
         ) {
             Text("TARE")
         }
 
         // Price display
         Text(
-            text = "Price: $${String.format("%.2f", currentDeliProduct?.deliProductPrice ?: 0f)}",
+            text = "Price: $${String.format("%.2f", currentDeliProduct?.calculateTotalPrice() ?: 0f)}",
             style = MaterialTheme.typography.titleLarge
         )
 
         // Finish Product button
         Button(
-            onClick = onFinishProduct,
+            onClick = {
+                Log.d("FinishButton", "Button Clicked")
+                currentDeliSale?.let {
+                    Log.d("FinishButton", "Current DeliSale is not null: $it")
+                    val updatedSale = productsViewModel.updateCurrentDeliSale(it)
+                    Log.d("FinishButton", "Updated DeliSale: $updatedSale")
+                    productsViewModel.updateCurrentDeliSale(updatedSale)
+                    productsViewModel.postDeliSale(updatedSale)
+                    onFinishProduct()
+                } ?: run {
+                    Log.d("FinishButton", "Current DeliSale is null")
+                }
+            },
             enabled = currentDeliProduct != null && displayedValue.first != 0.0,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)  // Reduced height
+                .height(48.dp)
         ) {
             Text("Finish Product")
         }
-
         // Add some extra space at the bottom to ensure everything is visible
         Spacer(modifier = Modifier.weight(1f))
     }
@@ -353,7 +391,7 @@ fun ProductCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            product.productImage?.let { base64Image ->
+            product.productImageDto?.let { base64Image ->
                 val bitmap = base64Image.toByteArrayOrNull()?.toBitmapOrNull()
                 if (bitmap != null) {
                     Image(
@@ -380,6 +418,7 @@ fun ProductCard(
         }
     }
 }
+
 fun String.toByteArrayOrNull(): ByteArray? = try {
     Base64.decode(this, Base64.DEFAULT)
 } catch (e: IllegalArgumentException) {
@@ -387,12 +426,9 @@ fun String.toByteArrayOrNull(): ByteArray? = try {
     null
 }
 
-// Extension function to convert ByteArray to Bitmap
 fun ByteArray.toBitmapOrNull(): Bitmap? = try {
     BitmapFactory.decodeByteArray(this, 0, this.size)
 } catch (e: Exception) {
     Log.e("Bitmap", "Decoding error", e)
     null
 }
-
-// Extension function to safely decode a Base64 string to ByteArray
