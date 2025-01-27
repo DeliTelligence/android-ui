@@ -168,7 +168,7 @@ fun AddToInventoryScreen(viewModel: InventoryAdjustmentViewModel = hiltViewModel
                         }
                     }
                 },
-                label = { Text("Order Weight") },
+                label = { Text("Product Weight in grams") },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -179,7 +179,7 @@ fun AddToInventoryScreen(viewModel: InventoryAdjustmentViewModel = hiltViewModel
                 TextField(
                     value = costPerBox.toString(),
                     onValueChange = { viewModel.updateCostPerBox(it.toDoubleOrNull() ?: 0.0) },
-                    label = { Text("Cost Per Box") },
+                    label = { Text("Cost of Product") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -201,7 +201,7 @@ fun AddToInventoryScreen(viewModel: InventoryAdjustmentViewModel = hiltViewModel
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = { viewModel.submitAdjustment() }) {
-                Text("Submit Adjustment")
+                Text("Finish")
             }
         }
     }

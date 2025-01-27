@@ -40,7 +40,9 @@ class InventoryQueryViewModel @Inject constructor(
         _inventoryList
     ) { query, list ->
         if (query.isEmpty()) list
-        else list.filter { it.productName.contains(query, ignoreCase = true) }
+        else list.filter { inventory ->
+            inventory.products.any { it.productName.contains(query, ignoreCase = true) }
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
@@ -58,4 +60,3 @@ class InventoryQueryViewModel @Inject constructor(
         _searchQuery.value = query
     }
 }
-

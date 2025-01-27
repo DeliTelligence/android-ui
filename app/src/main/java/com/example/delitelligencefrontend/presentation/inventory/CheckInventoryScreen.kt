@@ -5,6 +5,7 @@ All code here is adapted from the video*/
 
 package com.example.delitelligencefrontend.presentation.inventory
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,11 +13,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.delitelligencefrontend.model.Inventory
+import com.example.delitelligencefrontend.presentation.mainmenu.toBitmapOrNull
+import com.example.delitelligencefrontend.presentation.mainmenu.toByteArrayOrNull
 import com.example.delitelligencefrontend.presentation.viewmodel.InventoryQueryViewModel
-import com.example.delitelligencefrontend.presentation.viewmodel.ProductsViewModel
+import kotlin.math.roundToInt
+import com.example.delitelligencefrontend.helper.HelperMethods.Companion.toCurrency
 
 @Composable
 fun CheckInventoryScreen(
@@ -32,7 +38,6 @@ fun CheckInventoryScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        // Search bar
         TextField(
             value = searchQuery,
             onValueChange = { viewModel.updateSearchQuery(it) },
@@ -42,12 +47,12 @@ fun CheckInventoryScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Inventory list
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
             items(inventoryList) { inventory ->
                 InventoryItem(inventory = inventory)
+                Divider()
             }
         }
     }
@@ -55,10 +60,39 @@ fun CheckInventoryScreen(
 
 @Composable
 fun InventoryItem(inventory: Inventory) {
-    Row(modifier = Modifier.padding(8.dp)) {
-        Text(text = "Product Name: ${inventory.productName}", modifier = Modifier.weight(1f))
-        Text(text = "Total Weight: ${inventory.totalWeight}", modifier = Modifier.weight(1f))
-        Text(text = "Location: ${inventory.location}", modifier = Modifier.weight(1f))
-        Text(text = "Inventory Value: ${inventory.inventoryValue}", modifier = Modifier.weight(1f))
+    inventory.products.forEach { product ->
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Product Image
+            product.productImage.toByteArrayOrNull()?.toBitmapOrNull()?.let { bitmap ->
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "Product Image",
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1f),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Product Information
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = product.productName, modifier = Modifier.weight(1f))
+                Text(text = "Value: ${inventory.inventoryValue.toCurrency("EUR")}", modifier = Modifier.weight(1f))
+                Text(text = "Filling Portions Left: ${inventory.fillingPortion.roundToInt()}", modifier = Modifier.weight(1f))
+                Text(text = "Salad Portions Left: ${inventory.saladPortion.roundToInt()}", modifier = Modifier.weight(1f))
+            }
+        }
     }
 }

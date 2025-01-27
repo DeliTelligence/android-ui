@@ -3,14 +3,23 @@ package com.example.delitelligencefrontend.model.mapper
 import com.example.delitelligence.GetAllProductsQuery
 import com.example.delitelligence.GetInventoryQuery
 import com.example.delitelligencefrontend.model.Inventory
+import com.example.delitelligencefrontend.model.InventoryProduct
 import com.example.delitelligencefrontend.model.Product
 
 fun GetInventoryQuery.GetInventory.toInventory(): Inventory {
-    // Provide default values if any of the fields could be null
     return Inventory(
-        productName = this.productName ?: "Unknown", // Default to 'Unknown' if null
-        totalWeight = this.totalWeight ?: 0.0, // Default to 0.0 if null
-        location = this.location ?: "Unknown location", // Default to 'Unknown location' if null
-        inventoryValue = this.inventoryValue ?: 0.0 // Default to 0.0 if null
+        products = this.products?.map { it!!.toInventoryProduct() } ?: emptyList(),
+        fillingPortion = this.fillingPortion ?: 0.0,
+        saladPortion = this.saladPortion ?: 0.0,
+        totalWeight = this.totalWeight ?: 0.0,
+        location = this.location ?: "Unknown location",
+        inventoryValue = this.inventoryValue ?: 0.0
+    )
+}
+
+fun GetInventoryQuery.Product.toInventoryProduct(): InventoryProduct {
+    return InventoryProduct(
+        productName = this.productName ?: "Unknown product",
+        productImage = this.productImageDto ?: ""
     )
 }

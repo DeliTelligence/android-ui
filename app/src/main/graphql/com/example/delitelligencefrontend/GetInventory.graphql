@@ -1,7 +1,12 @@
 query GetInventory{
     getInventory {
-        productName
+        products {
+            productName
+            productImageDto
+        }
         totalWeight
+        fillingPortion
+        saladPortion
         location
         inventoryValue
     }
