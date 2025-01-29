@@ -3,7 +3,6 @@
 
 package com.example.delitelligencefrontend.presentation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,20 +10,16 @@ import androidx.navigation.compose.rememberNavController
 import com.example.delitelligencefrontend.presentation.inventory.AddToInventoryScreen
 import com.example.delitelligencefrontend.presentation.inventory.CheckInventoryScreen
 import com.example.delitelligencefrontend.presentation.inventory.InventoryScreen
-import com.example.delitelligencefrontend.presentation.mainmenu.HotFoodToGoScreen
-import com.example.delitelligencefrontend.presentation.mainmenu.MakeProductScreen
-import com.example.delitelligencefrontend.presentation.mainmenu.MakeSaladScreen
-import com.example.delitelligencefrontend.presentation.mainmenu.StoreScreen
-import com.example.delitelligencefrontend.presentation.mainmenu.StoreScreen
-
+import com.example.delitelligencefrontend.presentation.mainmenu.*
+import com.example.delitelligencefrontend.presentation.userscreen.LoginScreen
 
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.StartScreen.route) {
-        composable(Screen.StartScreen.route) {
-            StartScreen(navController = navController)
+    NavHost(navController = navController, startDestination = Screen.LoginScreen.route) {
+        composable(Screen.LoginScreen.route) {
+            LoginScreen(navController = navController)
         }
 
         composable(Screen.StoreScreen.route) {
@@ -89,4 +84,3 @@ sealed class Screen(val route: String) {
     object CheckInventoryScreen : Screen("check_inventory_screen")
 
 }
-

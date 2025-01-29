@@ -92,7 +92,9 @@ type Employee {
   hireDate: String
 }
 
-input EmployeeFetchDto {
+type EmployeeFetchDto {
+  id: ID!
+
   employeeFirstName: String
 
   employeeLastName: String
@@ -181,7 +183,7 @@ type InventoryFetchDto {
 }
 
 type Mutation {
-  createEmployee(input: EmployeeInputDto): Employee
+  createEmployee(input: EmployeeInputDto): String
 
   createSale(input: DeliSaleInputDto): String
 
@@ -259,6 +261,8 @@ type Query {
   getSupplierByName(name: String!): SupplierFetchDto
 
   getInventory: [InventoryFetchDto]
+
+  employeeLogin(password: String!): EmployeeFetchDto
 }
 
 enum SaleType {

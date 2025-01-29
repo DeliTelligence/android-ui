@@ -5,17 +5,15 @@ All code here is adapted from the video*/
 
 package com.example.delitelligencefrontend.data
 
-import androidx.compose.material3.DisplayMode.Companion.Input
 import com.apollographql.apollo.ApolloClient
 import com.example.delitelligence.CreateDeliSaleMutation
 import com.example.delitelligence.type.DeliSaleInputDto
-import com.example.delitelligencefrontend.domain.SaleClient
-import com.example.delitelligencefrontend.model.Product
+import com.example.delitelligencefrontend.domain.interfaces.SaleClient
 
 class ApolloSaleClient(
     private val apolloClient: ApolloClient
 
-): SaleClient{
+): SaleClient {
     override suspend fun createSale(input: DeliSaleInputDto): String? {
         return try {
             val response = apolloClient

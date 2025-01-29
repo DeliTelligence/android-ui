@@ -13,7 +13,7 @@ class GetInventoryUseCase(
 package com.example.delitelligencefrontend.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.delitelligencefrontend.domain.GetInventoryUseCase
+import com.example.delitelligencefrontend.domain.InventoryUseCase
 import com.example.delitelligencefrontend.model.Inventory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class InventoryQueryViewModel @Inject constructor(
-    private val getInventoryUseCase: GetInventoryUseCase
+    private val getInventoryUseCase: InventoryUseCase
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")

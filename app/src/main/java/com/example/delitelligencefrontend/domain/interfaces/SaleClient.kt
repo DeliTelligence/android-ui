@@ -1,7 +1,6 @@
-package com.example.delitelligencefrontend.domain
+package com.example.delitelligencefrontend.domain.interfaces
 
 import com.example.delitelligence.type.DeliSaleInputDto
-import com.example.delitelligencefrontend.model.Product
 
 interface SaleClient {
     suspend fun createSale(input: DeliSaleInputDto): String?

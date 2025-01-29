@@ -6,12 +6,12 @@ All code here is adapted from the video*/
 package com.example.delitelligencefrontend.domain
 
 import com.example.delitelligence.type.DeliSaleInputDto
-import com.example.delitelligence.type.InventoryAdjustmentInputDto
+import com.example.delitelligencefrontend.domain.interfaces.SaleClient
 
-class PostAdjustmentUseCase(
-    private val inventoryClient: InventoryClient
-) {
-    suspend fun execute(input: InventoryAdjustmentInputDto): String? {
-        return inventoryClient.createAdjustment(input)
+class DeliSaleUseCase(
+    private val saleClient: SaleClient
+)  {
+    suspend fun execute(input: DeliSaleInputDto): String? {
+        return saleClient.createSale(input)
     }
 }

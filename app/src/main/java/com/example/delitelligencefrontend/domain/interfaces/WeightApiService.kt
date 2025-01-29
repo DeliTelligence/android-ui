@@ -2,7 +2,7 @@
  prompt 'whats the best way to send requests to a service using REST using OkayHttp library in Android'
  Date Sent: 6/11/2024 */
 
-package com.example.delitelligencefrontend.domain
+package com.example.delitelligencefrontend.domain.interfaces
 
 import com.example.delitelligencefrontend.model.StatusResponse
 import com.example.delitelligencefrontend.model.WeightResponse

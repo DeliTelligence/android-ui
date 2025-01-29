@@ -7,10 +7,10 @@ All code here is adapted from the video*/
 package com.example.delitelligencefrontend.domain
 
 import com.example.delitelligence.type.ProductType
-import com.example.delitelligencefrontend.model.Employee
+import com.example.delitelligencefrontend.domain.interfaces.ProductClient
 import com.example.delitelligencefrontend.model.Product
 
-class GetProductsUseCase(
+class ProductsUseCase(
     private val productClient: ProductClient
 
 ) {

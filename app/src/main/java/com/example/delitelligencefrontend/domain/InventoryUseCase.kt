@@ -4,11 +4,11 @@ Date 10/10/2024 accessed
 All code here is adapted from the video*/
 package com.example.delitelligencefrontend.domain
 
-import com.example.delitelligence.type.ProductType
+import com.example.delitelligence.type.InventoryAdjustmentInputDto
+import com.example.delitelligencefrontend.domain.interfaces.InventoryClient
 import com.example.delitelligencefrontend.model.Inventory
-import com.example.delitelligencefrontend.model.Product
 
-class GetInventoryUseCase(
+class InventoryUseCase(
     private val inventoryClient: InventoryClient
 
 ) {
@@ -16,4 +16,8 @@ class GetInventoryUseCase(
     suspend fun execute(): List<Inventory> {
         return inventoryClient.getInventory()
     }
+    suspend fun execute(input: InventoryAdjustmentInputDto): String? {
+        return inventoryClient.createAdjustment(input)
+    }
+
 }

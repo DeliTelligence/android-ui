@@ -28,7 +28,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.delitelligencefrontend.model.StatusResponse
-import com.example.delitelligencefrontend.domain.WeightApiService
+import com.example.delitelligencefrontend.domain.interfaces.WeightApiService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response

@@ -1,34 +1,15 @@
-/* https://www.youtube.com/watch?v=ME3LH2bib3g&ab_channel=PhilippLackner
-How to Build a Clean Architecture GraphQL App With Kotlin - Android Studio Tutorial
-Date 5/11/2024 accessed
-All code here is adapted from the video
-The code for okayHttp injections I learned how to do through this video as well*/
-
 package com.example.delitelligencefrontend.di
 
-
+import android.content.Context
 import com.apollographql.apollo.ApolloClient
-import com.example.delitelligencefrontend.data.ApolloEmployeeClient
-import com.example.delitelligencefrontend.data.ApolloInventoryClient
-import com.example.delitelligencefrontend.data.ApolloProductClient
-import com.example.delitelligencefrontend.data.ApolloSaleClient
-import com.example.delitelligencefrontend.data.ApolloSupplierClient
-import com.example.delitelligencefrontend.domain.EmployeeClient
-import com.example.delitelligencefrontend.domain.GetEmployeesUseCase
-import com.example.delitelligencefrontend.domain.GetInventoryUseCase
-import com.example.delitelligencefrontend.domain.GetProductsUseCase
-import com.example.delitelligencefrontend.domain.GetSupplierUseCase
-import com.example.delitelligencefrontend.domain.InventoryClient
-import com.example.delitelligencefrontend.domain.PostAdjustmentUseCase
-import com.example.delitelligencefrontend.domain.PostDeliSaleUseCase
-import com.example.delitelligencefrontend.domain.ProductClient
-import com.example.delitelligencefrontend.domain.SaleClient
-import com.example.delitelligencefrontend.domain.SupplierClient
-import com.example.delitelligencefrontend.domain.WeightApiService
-
+import com.example.delitelligencefrontend.data.*
+import com.example.delitelligencefrontend.domain.*
+import com.example.delitelligencefrontend.domain.interfaces.*
+import com.example.delitelligencefrontend.model.Session
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -54,7 +35,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://192.168.1.12:5000")
+            .baseUrl("http://10.241.215.54:5000")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -70,7 +51,7 @@ object AppModule {
     @Singleton
     fun provideApolloClient(): ApolloClient {
         return ApolloClient.Builder()
-            .serverUrl("http://192.168.1.12:8080/graphql")
+            .serverUrl("http://10.241.215.54:8080/graphql")
             .build()
     }
 
@@ -82,8 +63,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGetEmployeesUseCase(employeeClient: EmployeeClient): GetEmployeesUseCase {
-        return GetEmployeesUseCase(employeeClient)
+    fun provideEmployeesUseCase(employeeClient: EmployeeClient): EmployeesUseCase {
+        return EmployeesUseCase(employeeClient)
     }
 
     @Provides
@@ -94,8 +75,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGetProductsUseCase(productClient: ProductClient): GetProductsUseCase {
-        return GetProductsUseCase(productClient)
+    fun provideGetProductsUseCase(productClient: ProductClient): ProductsUseCase {
+        return ProductsUseCase(productClient)
     }
 
     @Provides
@@ -106,8 +87,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePostDeliSaleUseCase(saleClient: SaleClient): PostDeliSaleUseCase {
-        return PostDeliSaleUseCase(saleClient)
+    fun providePostDeliSaleUseCase(saleClient: SaleClient): DeliSaleUseCase {
+        return DeliSaleUseCase(saleClient)
     }
 
     @Provides
@@ -118,14 +99,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun getInventoryUseCase(inventoryClient: InventoryClient): GetInventoryUseCase {
-        return GetInventoryUseCase(inventoryClient)
-    }
-
-    @Provides
-    @Singleton
-    fun providePostAdjustmentUseCase(inventoryClient: InventoryClient): PostAdjustmentUseCase {
-        return PostAdjustmentUseCase(inventoryClient)
+    fun provideInventoryUseCase(inventoryClient: InventoryClient): InventoryUseCase {
+        return InventoryUseCase(inventoryClient)
     }
 
     @Provides
@@ -133,11 +108,16 @@ object AppModule {
     fun provideSupplierClient(apolloClient: ApolloClient): SupplierClient {
         return ApolloSupplierClient(apolloClient)
     }
+
     @Provides
     @Singleton
-    fun provideGetSuppliersUseCase(supplierClient: SupplierClient): GetSupplierUseCase {
-        return GetSupplierUseCase(supplierClient)
+    fun provideGetSuppliersUseCase(supplierClient: SupplierClient): SupplierUseCase {
+        return SupplierUseCase(supplierClient)
     }
 
-
+    @Provides
+    @Singleton
+    fun provideSession(@ApplicationContext context: Context): Session {
+        return Session(context)
+    }
 }

@@ -64,7 +64,7 @@ fun MakeProductScreen(
         Log.d("MakeProductScreen", "currentDeliProduct changed: $currentDeliProduct")
         if (currentDeliProduct != null) {
             currentDeliSale = DeliSale(
-                employeeId = "f8f67708-5d61-4ff5-a607-f5e03f3cb553",
+                productsViewModel.getEmployeeId().toString(),
                 deliProduct = currentDeliProduct!!,
                 salePrice = currentDeliProduct!!.calculateTotalPrice(),
                 saleWeight = 0.0, // Placeholder, you will set it when fetching weight data

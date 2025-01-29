@@ -1,8 +1,0 @@
-
-query GetEmployees {
-    getEmployees {
-        employeeFirstName
-        employeeLastName
-        hireDate
-    }
-}

@@ -1,7 +1,25 @@
-mutation CreateEmployee($input: EmployeeInputDto!) {
-    createEmployee(input: $input) {
+mutation CreateEmployee($input: EmployeeInputDto!){
+    createEmployee(input: $input)
+
+}
+
+query EmployeeLogIn($password: String!){
+    employeeLogin(password: $password){
+        id
         employeeFirstName
         employeeLastName
+        employeeLoggedIn
+        employeeTitle
+        hireDate
+    }
+}
+
+query GetEmployees {
+    getEmployees {
+        employeeFirstName
+        employeeLastName
+        hireDate
+        employeeLoggedIn
         employeeTitle
     }
 }

@@ -1,8 +1,5 @@
-package com.example.delitelligencefrontend.domain
+package com.example.delitelligencefrontend.domain.interfaces
 
-import com.example.delitelligence.type.EmployeeInputDto
-import com.example.delitelligencefrontend.enumformodel.ProductType
-import com.example.delitelligencefrontend.model.Employee
 import com.example.delitelligencefrontend.model.Product
 
 interface ProductClient {

@@ -5,13 +5,29 @@ All code here is adapted from the video*/
 
 package com.example.delitelligencefrontend.model.mapper
 
+import com.example.delitelligence.EmployeeLogInQuery
 import com.example.delitelligence.GetEmployeesQuery
 import com.example.delitelligencefrontend.model.Employee
+import com.example.delitelligencefrontend.model.EmployeeFetch
+import java.util.UUID
 
-fun GetEmployeesQuery.GetEmployee.toEmployee(): Employee {
-    return Employee(
+fun GetEmployeesQuery.GetEmployee.toEmployee(): EmployeeFetch {
+    return EmployeeFetch(
         employeeFirstName = employeeFirstName ?: "No First Name",
         employeeLastName = employeeLastName ?: "No Last Name",
-        hireDate = hireDate ?: "No Date"
+        hireDate = hireDate ?: "No Date",
+        employeeTitle = employeeTitle ?: "No Title",
+        employeeLoggedIn = employeeLoggedIn ?: false
+    )
+}
+
+fun EmployeeLogInQuery.EmployeeLogin.toEmployee(): Employee {
+    return Employee(
+        employeeId = id ?: "None",
+        employeeFirstName = employeeFirstName ?: "No First Name",
+        employeeLastName = employeeLastName ?: "No Last Name",
+        hireDate = hireDate ?: "No Date",
+        employeeTitle = (employeeTitle ?: "No Title").toString(),
+        employeeLoggedIn = employeeLoggedIn ?: false
     )
 }

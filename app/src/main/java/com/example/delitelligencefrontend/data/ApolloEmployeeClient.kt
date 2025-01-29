@@ -6,22 +6,33 @@ All code here is adapted from the video*/
 package com.example.delitelligencefrontend.data
 
 import com.apollographql.apollo.ApolloClient
+import com.example.delitelligence.CreateEmployeeMutation
+import com.example.delitelligence.EmployeeLogInQuery
 import com.example.delitelligence.GetEmployeesQuery
 import com.example.delitelligence.type.EmployeeInputDto
 import com.example.delitelligencefrontend.model.Employee
-import com.example.delitelligencefrontend.domain.EmployeeClient
+import com.example.delitelligencefrontend.domain.interfaces.EmployeeClient
+import com.example.delitelligencefrontend.model.EmployeeFetch
 import com.example.delitelligencefrontend.model.mapper.toEmployee
 
 class ApolloEmployeeClient(
     private val apolloClient: ApolloClient
 ): EmployeeClient {
-    override suspend fun createEmployee(inputDto: EmployeeInputDto): Employee {
+    override suspend fun createEmployee(input: EmployeeInputDto): String? {
+        return try {
+            val response = apolloClient
+                .mutation(CreateEmployeeMutation(input))
+                .execute()
 
-        TODO("Not yet implemented")
-
+            // Assuming response.data?.createSale returns a string
+            response.data?.createEmployee
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
-    override suspend fun getEmployees(): List<Employee> {
+    override suspend fun getEmployees(): List<EmployeeFetch> {
         return apolloClient
             .query(GetEmployeesQuery())
             .execute()
@@ -30,5 +41,16 @@ class ApolloEmployeeClient(
             ?.mapNotNull { it?.toEmployee() } // Use mapNotNull to filter out nulls
             ?: emptyList()
     }
+
+    override suspend fun employeeLogIn(password: String): Employee? {
+        return apolloClient
+            .query(EmployeeLogInQuery(password))
+            .execute()
+            .data
+            ?.employeeLogin
+            ?.toEmployee()    }
+
+
+
 }
 

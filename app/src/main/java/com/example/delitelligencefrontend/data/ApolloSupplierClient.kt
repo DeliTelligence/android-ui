@@ -6,13 +6,9 @@ All code here is adapted from the video*/
 package com.example.delitelligencefrontend.data
 
 import com.apollographql.apollo.ApolloClient
-import com.example.delitelligence.GetAllProductsQuery
 import com.example.delitelligence.GetAllSuppliersQuery
-import com.example.delitelligencefrontend.domain.SaleClient
-import com.example.delitelligencefrontend.domain.SupplierClient
-import com.example.delitelligencefrontend.model.Product
+import com.example.delitelligencefrontend.domain.interfaces.SupplierClient
 import com.example.delitelligencefrontend.model.Supplier
-import com.example.delitelligencefrontend.model.mapper.toProduct
 import com.example.delitelligencefrontend.model.mapper.toSupplier
 
 class ApolloSupplierClient(

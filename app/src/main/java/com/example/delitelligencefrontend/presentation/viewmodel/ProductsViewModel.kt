@@ -54,31 +54,32 @@ package com.example.delitelligencefrontend.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.delitelligencefrontend.domain.GetProductsUseCase
-import com.example.delitelligencefrontend.domain.PostDeliSaleUseCase
+import com.example.delitelligencefrontend.domain.ProductsUseCase
+import com.example.delitelligencefrontend.domain.DeliSaleUseCase
 import com.example.delitelligencefrontend.model.Product
-import com.example.delitelligencefrontend.model.WeightResponse
-import com.example.delitelligencefrontend.model.StatusResponse
-import com.example.delitelligencefrontend.domain.WeightApiService
+import com.example.delitelligencefrontend.domain.interfaces.WeightApiService
 import com.example.delitelligencefrontend.enumformodel.PortionType
-import com.example.delitelligencefrontend.enumformodel.SaleType
 import com.example.delitelligencefrontend.enumformodel.StandardType
 import com.example.delitelligencefrontend.model.DeliProduct
 import com.example.delitelligencefrontend.model.DeliSale
+import com.example.delitelligencefrontend.model.Session
 import com.example.delitelligencefrontend.model.mapper.DeliSaleMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.abs
 
 @HiltViewModel
 class ProductsViewModel @Inject constructor(
-    private val getProductsUseCase: GetProductsUseCase,
+    private val getProductsUseCase: ProductsUseCase,
     private val weightApiService: WeightApiService,
-    private val postDeliSaleUseCase: PostDeliSaleUseCase
+    private val postDeliSaleUseCase: DeliSaleUseCase,
+    private val session: Session
+
 ) : ViewModel() {
 
     private val _hotFoodProductsFilling = MutableStateFlow<List<Product>>(emptyList())
@@ -325,6 +326,10 @@ class ProductsViewModel @Inject constructor(
 
         Log.d("ViewModel", "Updated DeliSale: $updatedSale")
         return updatedSale
+    }
+
+    fun getEmployeeId(): String? {
+        return session.getUser()?.employeeId
     }
 
 }

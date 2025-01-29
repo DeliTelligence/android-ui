@@ -1,6 +1,5 @@
-package com.example.delitelligencefrontend.domain
+package com.example.delitelligencefrontend.domain.interfaces
 
-import com.example.delitelligence.type.DeliSaleInputDto
 import com.example.delitelligencefrontend.model.Supplier
 
 interface SupplierClient {
