@@ -35,7 +35,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.241.215.54:5000")
+            .baseUrl("http://192.168.1.12:5000")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -51,7 +51,7 @@ object AppModule {
     @Singleton
     fun provideApolloClient(): ApolloClient {
         return ApolloClient.Builder()
-            .serverUrl("http://10.241.215.54:8080/graphql")
+            .serverUrl("http://192.168.1.12:8080/graphql")
             .build()
     }
 

@@ -47,7 +47,7 @@ fun AddToInventoryScreen(viewModel: InventoryAdjustmentViewModel = hiltViewModel
             onExpandedChange = { expandedAdjustmentType = !expandedAdjustmentType }
         ) {
             TextField(
-                value = adjustmentType.name, // Display currently selected adjustment type
+                value = adjustmentType.name,
                 onValueChange = {},
                 label = { Text("Adjustment Type") },
                 modifier = Modifier
@@ -159,9 +159,7 @@ fun AddToInventoryScreen(viewModel: InventoryAdjustmentViewModel = hiltViewModel
                 onValueChange = { newWeight ->
                     val weight = newWeight.toDoubleOrNull() ?: 0.0
                     viewModel.updateOrderWeight(weight)
-                    // Automatically update cost per box if it's a waste adjustment
                     if (adjustmentType == AdjustmentType.WASTE) {
-                        // Find the selected product
                         val selectedProduct = products.find { it.productName == productName }
                         selectedProduct?.let { product ->
                             viewModel.updateCostPerBox((product.productPrice ?: 0.0) * weight)

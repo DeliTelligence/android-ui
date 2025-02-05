@@ -95,7 +95,7 @@ fun MakeSaladScreen(
                     currentDeliProduct = currentDeliProduct?.copy(
                         products = currentDeliProduct!!.products + product,
                     ) ?: DeliProduct(
-                        deliProduct = productsViewModel.allProducts.value.firstOrNull { it.productId == "3403fe56-50b6-4a31-add7-064f5bcc1b88" },
+                        deliProduct = productsViewModel.allProducts.value.firstOrNull { it.id == "c29fd4aa-a947-428c-8284-97d4075c91b3" },
                         products = listOf(product),
                         combinedWeight = 0.0,
                         portionType = PortionType.SALAD

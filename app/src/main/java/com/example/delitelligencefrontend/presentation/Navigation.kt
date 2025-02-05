@@ -11,6 +11,9 @@ import com.example.delitelligencefrontend.presentation.inventory.AddToInventoryS
 import com.example.delitelligencefrontend.presentation.inventory.CheckInventoryScreen
 import com.example.delitelligencefrontend.presentation.inventory.InventoryScreen
 import com.example.delitelligencefrontend.presentation.mainmenu.*
+import com.example.delitelligencefrontend.presentation.managerscreen.ManageProductScreen
+import com.example.delitelligencefrontend.presentation.managerscreen.ManageUserScreen
+import com.example.delitelligencefrontend.presentation.managerscreen.ManagerScreen
 import com.example.delitelligencefrontend.presentation.userscreen.LoginScreen
 
 @Composable
@@ -32,7 +35,6 @@ fun Navigation() {
                 MakeProductScreen()
             }
         }
-
 
         composable(Screen.InventoryScreen.route) {
             BaseScreen(navController) {
@@ -65,6 +67,24 @@ fun Navigation() {
                 CheckInventoryScreen()
             }
         }
+        composable(Screen.ManagerScreen.route) {
+            BaseScreen(navController) {
+                // Replace with your InventoryScreen when it's implemented
+                ManagerScreen(navController)
+            }
+        }
+        composable(Screen.ManageProductScreen.route) {
+            BaseScreen(navController) {
+                // Replace with your InventoryScreen when it's implemented
+                ManageProductScreen()
+            }
+        }
+        composable(Screen.ManageUserScreen.route) {
+            BaseScreen(navController) {
+                // Replace with your InventoryScreen when it's implemented
+                ManageUserScreen()
+            }
+        }
 
 
         // Add other screens as needed
@@ -72,8 +92,7 @@ fun Navigation() {
 }
 
 sealed class Screen(val route: String) {
-    object StartScreen : Screen("start_screen")
-    object FoodScalesScreen : Screen("food_scales_screen")
+
     object StoreScreen : Screen("store_screen")
     object MakeProductScreen : Screen("make_product_screen")
     object LoginScreen : Screen("login_screen")
@@ -82,5 +101,8 @@ sealed class Screen(val route: String) {
     object MakeSaladScreen : Screen("make_salad_screen")
     object AddToInventoryScreen : Screen("add_inventory_screen")
     object CheckInventoryScreen : Screen("check_inventory_screen")
+    object ManageProductScreen : Screen("manage_product_screen")
+    object ManageUserScreen : Screen("manage_user_screen")
+    object ManagerScreen : Screen("manager_screen")
 
 }

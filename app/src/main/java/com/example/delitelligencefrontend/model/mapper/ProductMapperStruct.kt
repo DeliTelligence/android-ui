@@ -21,7 +21,7 @@ interface ProductMapperStruct {
     }
 
     // Map Product to ProductInputDto
-    @Mapping(target = "id", source = "productId")
+
     fun toProductInputDto(product: Product): ProductInputDto
 
 

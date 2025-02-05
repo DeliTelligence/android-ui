@@ -4,7 +4,7 @@ import com.example.delitelligencefrontend.enumformodel.ProductType
 import java.util.UUID
 
 data class Product(
-    val productId: String?,
+    val id: String?,
     val productName: String?,
     val standardWeightProducts: List<StandardWeightProduct>?,
     val productPrice: Double?,

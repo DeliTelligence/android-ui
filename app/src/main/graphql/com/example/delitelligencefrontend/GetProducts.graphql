@@ -39,6 +39,7 @@ query GetAllProducts{
             standardWeightValue
             standardWeight {
                 standardType
+                standardWeightId
             }
         }
         productType

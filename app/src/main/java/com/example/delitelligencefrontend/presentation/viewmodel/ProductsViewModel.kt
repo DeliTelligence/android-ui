@@ -177,7 +177,7 @@ class ProductsViewModel @Inject constructor(
 
 
     fun fetchWeightData(deliProduct: DeliProduct) {
-        if (_isScaleConnected.value && _areNotificationsEnabled.value) {
+        if (_isScaleConnected.value == true && _areNotificationsEnabled.value == true) {
             _isWeighing.value = true
             viewModelScope.launch {
                 try {
@@ -192,8 +192,8 @@ class ProductsViewModel @Inject constructor(
                                 PortionType.SALAD, PortionType.FILLING -> {
                                     deliProduct.products.sumOf { product ->
                                         product.standardWeightProducts?.sumOf {
-                                            if (deliProduct.portionType == PortionType.SALAD && it.standardWeight?.standardType == StandardType.SALAD.name
-                                                || deliProduct.portionType == PortionType.FILLING && it.standardWeight?.standardType == StandardType.FILLING.name) {
+                                            if (deliProduct.portionType == PortionType.SALAD && it.standardWeight?.standardType == StandardType.SALAD
+                                                || deliProduct.portionType == PortionType.FILLING && it.standardWeight?.standardType == StandardType.FILLING) {
                                                 it.standardWeightValue?.toDouble() ?: 0.0
                                             } else 0.0
                                         } ?: 0.0
@@ -206,7 +206,7 @@ class ProductsViewModel @Inject constructor(
                             val error = actualWeight - expectedWeight
 
                             // Check if error is significant (more than 10%)
-                            val isSignificantError = expectedWeight != 0.0 && abs(error / (expectedWeight)) > 0.1
+                            val isSignificantError = expectedWeight != 0.0 && abs(error / expectedWeight) > 0.1
                             _isWeightErrorSignificant.value = isSignificantError
 
                             // After 1 second, show the difference

@@ -9,6 +9,9 @@ package com.example.delitelligencefrontend.model.mapper
 import com.example.delitelligence.GetAllProductsQuery
 import com.example.delitelligence.GetProductByIDQuery
 import com.example.delitelligence.GetProductsByTypeQuery
+import com.example.delitelligence.type.EmployeePosition
+import com.example.delitelligencefrontend.enumformodel.EmployeeTitle
+import com.example.delitelligencefrontend.enumformodel.StandardType
 import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.model.StandardWeight
 import com.example.delitelligencefrontend.model.StandardWeightProduct
@@ -21,7 +24,7 @@ inline fun <T, R> List<T?>?.safeMap(mapper: (T) -> R): List<R> {
 // Mapping extension function for GetProductByIDQuery.GetProductById
 fun GetProductByIDQuery.GetProductById.toProduct(): Product {
     return Product(
-        productId = this.id,
+        id = this.id,
         productName = this.productName,
         standardWeightProducts = null, // Adjust if available in the response
         productPrice = this.productPrice,
@@ -33,7 +36,7 @@ fun GetProductByIDQuery.GetProductById.toProduct(): Product {
 // Mapping extension function for GetProductsByTypeQuery.GetProductsByType
 fun GetProductsByTypeQuery.GetProductsByType.toProduct(): Product {
     return Product(
-        productId = this.id,
+        id = this.id,
         productName = this.productName,
         standardWeightProducts = null, // Adjust if available in the response
         productPrice = this.productPrice,
@@ -45,7 +48,7 @@ fun GetProductsByTypeQuery.GetProductsByType.toProduct(): Product {
 // Mapping extension function for GetAllProductsQuery.GetAllProduct
 fun GetAllProductsQuery.GetAllProduct.toProduct(): Product {
     return Product(
-        productId = this.id,
+        id = this.id,
         productName = this.productName,
         standardWeightProducts = this.standardWeightProducts.safeMap { it.toStandardWeightProduct() },
         productPrice = this.productPrice?.toDouble(),
@@ -65,9 +68,18 @@ fun GetAllProductsQuery.StandardWeightProduct.toStandardWeightProduct(): Standar
 // Extension function to map the StandardWeight response to model
 fun GetAllProductsQuery.StandardWeight.toStandardWeight(): StandardWeight {
     return StandardWeight(
-        standardType = this.standardType
+        standardWeightId = this.standardWeightId,
+        standardType = this.standardType?.toStandardType()
     )
 }
 
+fun com.example.delitelligence.type.StandardType.toStandardType(): StandardType {
+    return when (this) {
+        com.example.delitelligence.type.StandardType.FILLING -> StandardType.FILLING
+        com.example.delitelligence.type.StandardType.SALAD -> StandardType.SALAD
+        com.example.delitelligence.type.StandardType.TO_GO -> StandardType.TO_GO
+        com.example.delitelligence.type.StandardType.UNKNOWN__ -> TODO()
+    }
+}
 
 
