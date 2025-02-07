@@ -4,10 +4,10 @@ Date 10/10/2024 accessed
 All code here is adapted from the video*/
 package com.example.delitelligencefrontend.domain
 
-import com.example.delitelligencefrontend.model.Product
+import com.example.delitelligencefrontend.domain.interfaces.SupplierClient
 import com.example.delitelligencefrontend.model.Supplier
 
-class GetSupplierUseCase(
+class SupplierUseCase(
     private val supplierClient: SupplierClient
 ) {
     suspend fun execute(): List<Supplier> {

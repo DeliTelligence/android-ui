@@ -47,7 +47,7 @@ fun AddToInventoryScreen(viewModel: InventoryAdjustmentViewModel = hiltViewModel
             onExpandedChange = { expandedAdjustmentType = !expandedAdjustmentType }
         ) {
             TextField(
-                value = adjustmentType.name, // Display currently selected adjustment type
+                value = adjustmentType.name,
                 onValueChange = {},
                 label = { Text("Adjustment Type") },
                 modifier = Modifier
@@ -159,16 +159,14 @@ fun AddToInventoryScreen(viewModel: InventoryAdjustmentViewModel = hiltViewModel
                 onValueChange = { newWeight ->
                     val weight = newWeight.toDoubleOrNull() ?: 0.0
                     viewModel.updateOrderWeight(weight)
-                    // Automatically update cost per box if it's a waste adjustment
                     if (adjustmentType == AdjustmentType.WASTE) {
-                        // Find the selected product
                         val selectedProduct = products.find { it.productName == productName }
                         selectedProduct?.let { product ->
                             viewModel.updateCostPerBox((product.productPrice ?: 0.0) * weight)
                         }
                     }
                 },
-                label = { Text("Order Weight") },
+                label = { Text("Product Weight in grams") },
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -179,7 +177,7 @@ fun AddToInventoryScreen(viewModel: InventoryAdjustmentViewModel = hiltViewModel
                 TextField(
                     value = costPerBox.toString(),
                     onValueChange = { viewModel.updateCostPerBox(it.toDoubleOrNull() ?: 0.0) },
-                    label = { Text("Cost Per Box") },
+                    label = { Text("Cost of Product") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -201,7 +199,7 @@ fun AddToInventoryScreen(viewModel: InventoryAdjustmentViewModel = hiltViewModel
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(onClick = { viewModel.submitAdjustment() }) {
-                Text("Submit Adjustment")
+                Text("Finish")
             }
         }
     }

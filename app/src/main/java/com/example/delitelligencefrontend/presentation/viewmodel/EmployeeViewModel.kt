@@ -9,7 +9,7 @@ package com.example.delitelligencefrontend.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.delitelligencefrontend.model.Employee
-import com.example.delitelligencefrontend.domain.GetEmployeesUseCase
+import com.example.delitelligencefrontend.domain.EmployeesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,24 +19,24 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EmployeeViewModel @Inject constructor(
-    private val getEmployeesUseCase: GetEmployeesUseCase
+    private val getEmployeesUseCase: EmployeesUseCase
 
 ): ViewModel() {
 
     private val _state = MutableStateFlow(EmployeeState())
     val state = _state.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            _state.update { it.copy(
-                isLoading = true
-            ) }
-            _state.update { it.copy(
-                employees = getEmployeesUseCase.execute(),
-                isLoading = false
-            ) }
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            _state.update { it.copy(
+//                isLoading = true
+//            ) }
+//            _state.update { it.copy(
+//                employees = getEmployeesUseCase.execute(),
+//                isLoading = false
+//            ) }
+//        }
+//    }
 
 //    fun selectCountry(code: String) {
 //        viewModelScope.launch {

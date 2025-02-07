@@ -6,11 +6,13 @@ All code here is adapted from the video*/
 
 package com.example.delitelligencefrontend.domain
 
+import com.example.delitelligence.type.ProductCreateDto
 import com.example.delitelligence.type.ProductType
-import com.example.delitelligencefrontend.model.Employee
+import com.example.delitelligence.type.ProductUpdateDto
+import com.example.delitelligencefrontend.domain.interfaces.ProductClient
 import com.example.delitelligencefrontend.model.Product
 
-class GetProductsUseCase(
+class ProductsUseCase(
     private val productClient: ProductClient
 
 ) {
@@ -23,5 +25,12 @@ class GetProductsUseCase(
 
     suspend fun execute(): List<Product> {
         return productClient.getAllProducts()
+    }
+    suspend fun execute(input: ProductCreateDto): String?{
+        return productClient.createProduct(input)
+    }
+
+    suspend fun execute(input: ProductUpdateDto): String?{
+        return productClient.updateProduct(input)
     }
 }

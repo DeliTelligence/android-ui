@@ -6,22 +6,6 @@ enum AdjustmentType {
   OTHER
 }
 
-type DeliProduct {
-  id: ID!
-
-  products: [Product]
-
-  saleId: [DeliSale]
-
-  combinedWeight: Float
-
-  deliProductPrice: Float
-
-  deliProductQuantity: Int
-
-  weightToPrice: Boolean
-}
-
 input DeliProductInput {
   productInputDtos: [ProductInputDto]!
 
@@ -30,30 +14,6 @@ input DeliProductInput {
   combinedWeight: Float!
 
   portionType: PortionType!
-}
-
-type DeliSale {
-  id: ID!
-
-  employeeId: ID
-
-  salePrice: Float
-
-  saleDate: String
-
-  saleWeight: Float
-
-  saleTime: String
-
-  wastePerSale: Float
-
-  wastePerSaleValue: Float
-
-  differenceWeight: Float
-
-  saleType: SaleType
-
-  saleQuantity: Int
 }
 
 input DeliSaleInputDto {
@@ -78,26 +38,51 @@ input DeliSaleInputDto {
   employeeId: ID!
 }
 
-type Employee {
+"""
+ Retrieval DTO for Get requests
+"""
+type EmployeeFetchDto {
   id: ID!
 
   employeeFirstName: String
 
   employeeLastName: String
 
+  employeeTitle: EmployeePosition
+
   employeeLoggedIn: Boolean
 
-  employeeTitle: String
-
   hireDate: String
+
+  employeePassword: String
 }
 
-input EmployeeInputDto {
+"""
+ Creation DTO for a Employee
+"""
+input EmployeeInputCreateDto {
   employeeFirstName: String!
 
   employeeLastName: String!
 
   employeeTitle: EmployeePosition!
+
+  employeePassword: String!
+}
+
+"""
+ Update DTO for Employee
+"""
+input EmployeeInputUpdateDto {
+  employeeId: ID!
+
+  employeeFirstName: String!
+
+  employeeLastName: String!
+
+  employeeTitle: EmployeePosition!
+
+  employeePassword: String!
 }
 
 enum EmployeePosition {
@@ -106,36 +91,6 @@ enum EmployeePosition {
   MANAGER
 
   ACCOUNTANT
-}
-
-type Inventory {
-  id: ID!
-
-  totalWeight: Float
-
-  inventoryValue: Float
-
-  inventoryExpirationDate: String
-
-  location: String
-
-  products: [Product]
-}
-
-type InventoryAdjustment {
-  id: ID!
-
-  weightPerBox: Float
-
-  unitCost: Float
-
-  adjustmentType: AdjustmentType
-
-  reason: String
-
-  dateOfAdjustment: String
-
-  supplier: Supplier
 }
 
 input InventoryAdjustmentInputDto {
@@ -153,23 +108,35 @@ input InventoryAdjustmentInputDto {
 }
 
 type InventoryFetchDto {
-  productName: String
+  products: [ProductFetchDto]
 
   totalWeight: Float
 
   location: String
 
   inventoryValue: Float
+
+  saladPortion: Float
+
+  fillingPortion: Float
 }
 
 type Mutation {
-  createEmployee(input: EmployeeInputDto): Employee
+  createEmployee(input: EmployeeInputCreateDto): String
+
+  deleteEmployee(id: ID!): String!
+
+  editEmployee(input: EmployeeInputUpdateDto): String
 
   createSale(input: DeliSaleInputDto): String
 
   createInventoryAdjustment(input: InventoryAdjustmentInputDto): String
 
-  deleteEmployee(id: ID!): String!
+  createProduct(input: ProductCreateDto): String
+
+  deleteProduct(id: ID!): String
+
+  editProduct(input: ProductUpdateDto): String
 }
 
 enum PortionType {
@@ -180,22 +147,29 @@ enum PortionType {
   QUANTITY
 }
 
-type Product {
-  id: ID!
+"""
+ Product Create DTO for Products
+"""
+input ProductCreateDto {
+  productName: String!
 
-  productName: String
+  standardWeightProducts: [StandardWeightProductInputCreateDto]!
 
-  standardWeight: Float
+  productPrice: Float!
 
-  productDescription: String
+  productImageDto: String!
 
-  productPrice: Float
+  """
+   Base64 encoded image data
+  """
+  productDescription: String!
 
-  productType: ProductType
-
-  productImage: String
+  productType: ProductType!
 }
 
+"""
+ Retrieval DTO for Products
+"""
 type ProductFetchDto {
   id: ID
 
@@ -210,11 +184,13 @@ type ProductFetchDto {
   """
    Base64 encoded image data
   """
-  productType: String
+  productType: ProductType
+
+  productDescription: String
 }
 
 input ProductInputDto {
-  id: String!
+  id: ID!
 }
 
 enum ProductType {
@@ -223,10 +199,40 @@ enum ProductType {
   COLD_FOOD
 
   BREAD
+
+  MADE_FOOD_HOT
+
+  MADE_FOOD_COLD
+
+  MAIN_FILLING_FOOD
+
+  BREAKFAST_FOOD
+}
+
+"""
+ Update Products DTO
+"""
+input ProductUpdateDto {
+  id: ID!
+
+  productName: String!
+
+  standardWeightProducts: [StandardWeightProductInputUpdateDto]!
+
+  productPrice: Float!
+
+  productImageDto: String!
+
+  """
+   Base64 encoded image data
+  """
+  productDescription: String!
+
+  productType: ProductType!
 }
 
 type Query {
-  getEmployees: [Employee]
+  getAllEmployees: [EmployeeFetchDto]
 
   getAllProducts: [ProductFetchDto]
 
@@ -241,6 +247,8 @@ type Query {
   getSupplierByName(name: String!): SupplierFetchDto
 
   getInventory: [InventoryFetchDto]
+
+  employeeLogin(password: String!): EmployeeFetchDto
 }
 
 enum SaleType {
@@ -251,14 +259,54 @@ enum SaleType {
   SALAD
 }
 
+enum StandardType {
+  FILLING
+
+  SALAD
+
+  TO_GO
+}
+
 type StandardWeightDto {
-  standardType: String
+  standardWeightId: ID
+
+  standardType: StandardType
+}
+
+input StandardWeightInputCreateDto {
+  standardWeightId: ID!
+}
+
+input StandardWeightInputDto {
+  standardType: StandardType
+}
+
+input StandardWeightInputUpdateDto {
+  standardWeightId: ID!
 }
 
 type StandardWeightProductDto {
   standardWeight: StandardWeightDto
 
   standardWeightValue: Float
+}
+
+input StandardWeightProductInputCreateDto {
+  standardWeightValue: Float!
+
+  standardWeight: StandardWeightInputCreateDto!
+}
+
+input StandardWeightProductInputDto {
+  standardWeight: StandardWeightInputDto
+
+  standardWeightValue: Float
+}
+
+input StandardWeightProductInputUpdateDto {
+  standardWeightValue: Float!
+
+  standardWeight: StandardWeightInputUpdateDto!
 }
 
 type Supplier {

@@ -54,31 +54,33 @@ package com.example.delitelligencefrontend.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.delitelligencefrontend.domain.GetProductsUseCase
-import com.example.delitelligencefrontend.domain.PostDeliSaleUseCase
+import com.example.delitelligencefrontend.domain.ProductsUseCase
+import com.example.delitelligencefrontend.domain.DeliSaleUseCase
 import com.example.delitelligencefrontend.model.Product
-import com.example.delitelligencefrontend.model.WeightResponse
-import com.example.delitelligencefrontend.model.StatusResponse
-import com.example.delitelligencefrontend.domain.WeightApiService
+import com.example.delitelligencefrontend.domain.interfaces.WeightApiService
 import com.example.delitelligencefrontend.enumformodel.PortionType
-import com.example.delitelligencefrontend.enumformodel.SaleType
+import com.example.delitelligencefrontend.enumformodel.ProductType
 import com.example.delitelligencefrontend.enumformodel.StandardType
 import com.example.delitelligencefrontend.model.DeliProduct
 import com.example.delitelligencefrontend.model.DeliSale
+import com.example.delitelligencefrontend.model.Session
 import com.example.delitelligencefrontend.model.mapper.DeliSaleMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.abs
 
 @HiltViewModel
 class ProductsViewModel @Inject constructor(
-    private val getProductsUseCase: GetProductsUseCase,
+    private val getProductsUseCase: ProductsUseCase,
     private val weightApiService: WeightApiService,
-    private val postDeliSaleUseCase: PostDeliSaleUseCase
+    private val postDeliSaleUseCase: DeliSaleUseCase,
+    private val session: Session
+
 ) : ViewModel() {
 
     private val _hotFoodProductsFilling = MutableStateFlow<List<Product>>(emptyList())
@@ -136,12 +138,12 @@ class ProductsViewModel @Inject constructor(
             try {
                 val fetchedProducts = getProductsUseCase.execute()
                 _allProducts.value = fetchedProducts
-                _coldFoodProducts.value = fetchedProducts.filter { it.productType?.equals("MADE_FOOD_COLD", ignoreCase = true) == true }
-                _hotFoodProducts.value = fetchedProducts.filter { it.productType?.equals("MADE_FOOD_HOT", ignoreCase = true) == true }
-                _mainFillingProducts.value = fetchedProducts.filter { it.productType?.equals("MAIN_FILLING_FOOD", ignoreCase = true) == true }
-                _fillingProducts.value = fetchedProducts.filter { it.productType?.equals("COLD_FOOD", ignoreCase = true) == true }
-                _hotFoodProductsFilling.value = fetchedProducts.filter { it.productType?.equals("HOT_FOOD", ignoreCase = true) == true }
-                _breakfastProducts.value = fetchedProducts.filter { it.productType?.equals("BREAKFAST_FOOD", ignoreCase = true) == true }
+                _coldFoodProducts.value = fetchedProducts.filter { it.productType?.equals(ProductType.MADE_FOOD_COLD) == true }
+                _hotFoodProducts.value = fetchedProducts.filter { it.productType?.equals(ProductType.MADE_FOOD_HOT) == true }
+                _mainFillingProducts.value = fetchedProducts.filter { it.productType?.equals(ProductType.MAIN_FILLING_FOOD) == true }
+                _fillingProducts.value = fetchedProducts.filter { it.productType?.equals(ProductType.COLD_FOOD) == true }
+                _hotFoodProductsFilling.value = fetchedProducts.filter { it.productType?.equals(ProductType.HOT_FOOD) == true }
+                _breakfastProducts.value = fetchedProducts.filter { it.productType?.equals(ProductType.BREAKFAST_FOOD) == true }
 
 
             } catch (e: Exception) {
@@ -176,7 +178,7 @@ class ProductsViewModel @Inject constructor(
 
 
     fun fetchWeightData(deliProduct: DeliProduct) {
-        if (_isScaleConnected.value && _areNotificationsEnabled.value) {
+        if (_isScaleConnected.value == true && _areNotificationsEnabled.value == true) {
             _isWeighing.value = true
             viewModelScope.launch {
                 try {
@@ -191,8 +193,8 @@ class ProductsViewModel @Inject constructor(
                                 PortionType.SALAD, PortionType.FILLING -> {
                                     deliProduct.products.sumOf { product ->
                                         product.standardWeightProducts?.sumOf {
-                                            if (deliProduct.portionType == PortionType.SALAD && it.standardWeight?.standardType == StandardType.SALAD.name
-                                                || deliProduct.portionType == PortionType.FILLING && it.standardWeight?.standardType == StandardType.FILLING.name) {
+                                            if (deliProduct.portionType == PortionType.SALAD && it.standardWeight?.standardType == StandardType.SALAD
+                                                || deliProduct.portionType == PortionType.FILLING && it.standardWeight?.standardType == StandardType.FILLING) {
                                                 it.standardWeightValue?.toDouble() ?: 0.0
                                             } else 0.0
                                         } ?: 0.0
@@ -205,7 +207,7 @@ class ProductsViewModel @Inject constructor(
                             val error = actualWeight - expectedWeight
 
                             // Check if error is significant (more than 10%)
-                            val isSignificantError = expectedWeight != 0.0 && abs(error / (expectedWeight)) > 0.1
+                            val isSignificantError = expectedWeight != 0.0 && abs(error / expectedWeight) > 0.1
                             _isWeightErrorSignificant.value = isSignificantError
 
                             // After 1 second, show the difference
@@ -283,7 +285,14 @@ class ProductsViewModel @Inject constructor(
     fun postDeliSale(deliSale: DeliSale) {
         viewModelScope.launch {
             try {
+                // Map to DeliSaleInputDto using MapStruct
                 val inputDto = DeliSaleMapper.INSTANCE.toDeliSaleInputDto(deliSale)
+
+                // Extract and print the DeliProduct ID after mapping
+                val deliProductId = inputDto.deliProductInputDto.productInputDto.id
+                Log.d("ViewModel", "Mapped DeliProduct ID: $deliProductId")
+                println("Mapped DeliProduct ID: $deliProductId")  // For additional verification
+
                 val response = postDeliSaleUseCase.execute(inputDto)
                 if (response != null) {
                     _scaleStatus.value = "Sale posted successfully: $response"
@@ -295,6 +304,7 @@ class ProductsViewModel @Inject constructor(
             }
         }
     }
+
     fun updateCurrentDeliSale(currentDeliSale: DeliSale): DeliSale {
         Log.d("ViewModel", "Updating Current DeliSale: $currentDeliSale")
         var totalPrice = 0.0
@@ -325,6 +335,10 @@ class ProductsViewModel @Inject constructor(
 
         Log.d("ViewModel", "Updated DeliSale: $updatedSale")
         return updatedSale
+    }
+
+    fun getEmployeeId(): String? {
+        return session.getUser()?.employeeId
     }
 
 }

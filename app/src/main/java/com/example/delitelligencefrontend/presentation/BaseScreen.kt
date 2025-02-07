@@ -2,9 +2,7 @@ package com.example.delitelligencefrontend.presentation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -71,6 +69,9 @@ fun DrawerContent(
         Divider()
         NavigationItem(navController, scope, drawerState, "Store", Icons.Filled.ShoppingCart, Screen.StoreScreen.route)
         NavigationItem(navController, scope, drawerState, "Inventory", Icons.Filled.List, Screen.InventoryScreen.route)
+        Spacer(modifier = Modifier.height(16.dp))
+        Divider()
+        NavigationItem(navController, scope, drawerState, "Manager Home", Icons.Filled.AccountCircle, Screen.ManagerScreen.route)
     }
 }
 
@@ -89,12 +90,7 @@ fun NavigationItem(
         selected = navController.currentBackStackEntryAsState().value?.destination?.route == route,
         onClick = {
             navController.navigate(route) {
-                // Pop up to the start destination of the graph to
-                // avoid building up a large stack of destinations
-                // on the back stack as users select items
                 popUpTo(navController.graph.startDestinationId)
-                // Avoid multiple copies of the same destination when
-                // reselecting the same item
                 launchSingleTop = true
             }
             scope.launch {
@@ -127,6 +123,17 @@ fun BottomBar(navController: NavHostController) {
             selected = currentRoute == Screen.InventoryScreen.route,
             onClick = {
                 navController.navigate(Screen.InventoryScreen.route) {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            }
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Manager") },
+            label = { Text("Manager") },
+            selected = currentRoute == Screen.ManagerScreen.route,
+            onClick = {
+                navController.navigate(Screen.ManagerScreen.route) {
                     popUpTo(navController.graph.startDestinationId)
                     launchSingleTop = true
                 }

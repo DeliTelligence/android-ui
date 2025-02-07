@@ -65,7 +65,7 @@ fun MakeSaladScreen(
     LaunchedEffect(currentDeliProduct) {
         if (currentDeliProduct != null) {
             currentDeliSale = DeliSale(
-                employeeId = "f8f67708-5d61-4ff5-a607-f5e03f3cb553",
+                productsViewModel.getEmployeeId().toString(),
                 deliProduct = currentDeliProduct!!,
                 salePrice = currentDeliProduct!!.calculateTotalPrice(),
                 saleWeight = 0.0, // Placeholder, you will set it when fetching weight data
@@ -95,7 +95,7 @@ fun MakeSaladScreen(
                     currentDeliProduct = currentDeliProduct?.copy(
                         products = currentDeliProduct!!.products + product,
                     ) ?: DeliProduct(
-                        deliProduct = productsViewModel.allProducts.value.firstOrNull { it.productId == "3403fe56-50b6-4a31-add7-064f5bcc1b88" },
+                        deliProduct = productsViewModel.allProducts.value.firstOrNull { it.id == "cdc8ebe2-fd1b-4cd3-80dd-cbc3e9d1fec5" },
                         products = listOf(product),
                         combinedWeight = 0.0,
                         portionType = PortionType.SALAD

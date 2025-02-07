@@ -6,11 +6,13 @@
 
 package com.example.delitelligencefrontend.model.mapper
 
-import com.apollographql.apollo.api.Optional
+import com.example.delitelligence.type.ProductCreateDto
 import com.example.delitelligence.type.ProductInputDto
+import com.example.delitelligence.type.ProductUpdateDto
 import com.example.delitelligencefrontend.model.Product
+import com.example.delitelligencefrontend.modeldto.product.ProductCreate
+import com.example.delitelligencefrontend.modeldto.product.ProductUpdate
 import org.mapstruct.Mapper
-import org.mapstruct.Mapping
 import org.mapstruct.factory.Mappers
 
 @Mapper(componentModel = "default")
@@ -21,8 +23,11 @@ interface ProductMapperStruct {
     }
 
     // Map Product to ProductInputDto
-    @Mapping(target = "id", source = "productId")
+
     fun toProductInputDto(product: Product): ProductInputDto
+
+
+
 
 
 }

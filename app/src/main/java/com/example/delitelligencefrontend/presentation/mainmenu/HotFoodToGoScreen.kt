@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.delitelligencefrontend.enumformodel.PortionType
 import com.example.delitelligencefrontend.enumformodel.SaleType
 import com.example.delitelligencefrontend.model.DeliProduct
@@ -59,7 +60,7 @@ fun HotFoodToGoScreen(
         if (currentDeliProduct != null) {
             // Create a new DeliSale or update the existing one with new product
             currentDeliSale = DeliSale(
-                employeeId = "f8f67708-5d61-4ff5-a607-f5e03f3cb553",
+                productsViewModel.getEmployeeId().toString(),
                 deliProduct = currentDeliProduct!!,
                 salePrice = currentDeliProduct!!.calculateTotalPrice(),
                 saleWeight = 0.0, // Placeholder, you will set it when fetching weight data

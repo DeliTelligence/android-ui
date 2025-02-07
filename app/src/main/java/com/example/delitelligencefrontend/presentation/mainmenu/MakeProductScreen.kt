@@ -39,7 +39,6 @@ import com.example.delitelligencefrontend.model.DeliSale
 import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.presentation.viewmodel.ProductsViewModel
 import kotlin.math.abs
-import java.util.*
 
 @Composable
 fun MakeProductScreen(
@@ -64,18 +63,18 @@ fun MakeProductScreen(
         Log.d("MakeProductScreen", "currentDeliProduct changed: $currentDeliProduct")
         if (currentDeliProduct != null) {
             currentDeliSale = DeliSale(
-                employeeId = "f8f67708-5d61-4ff5-a607-f5e03f3cb553",
+                productsViewModel.getEmployeeId().toString(),
                 deliProduct = currentDeliProduct!!,
                 salePrice = currentDeliProduct!!.calculateTotalPrice(),
-                saleWeight = 0.0, // Placeholder, you will set it when fetching weight data
+                saleWeight = 0.0,
                 wastePerSale = 0.0,
                 wastePerSaleValue = 0.0,
                 differenceWeight = 0.0,
-                saleType = SaleType.HOT_FOOD, // Adjust as per your logic
-                quantity = currentDeliProduct!!.totalQuantity(), // Assuming 1 for simplicity
-                handMade = true // Set based on your logic
+                saleType = SaleType.HOT_FOOD,
+                quantity = currentDeliProduct!!.totalQuantity(),
+                handMade = true
             )
-            productsViewModel.setCurrentDeliSale(currentDeliSale!!) // Ensure ViewModel gets updated
+            productsViewModel.setCurrentDeliSale(currentDeliSale!!)
         } else {
             currentDeliSale = null
         }
@@ -253,11 +252,6 @@ fun RightQuadrant(
     val isWeightErrorSignificant by productsViewModel.isWeightErrorSignificant.collectAsState()
     val currentDeliSale by productsViewModel.currentDeliSale.collectAsState()
 
-//    LaunchedEffect(currentDeliProduct) {
-//        if (currentDeliProduct != null) {
-//            productsViewModel.updateCurrentDeliSale(currentDeliProduct)
-//        }
-//    }
 
     Column(
         modifier = Modifier
@@ -266,7 +260,7 @@ fun RightQuadrant(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Weight/Difference display circle
+
         Box(
             modifier = Modifier
                 .size(250.dp)

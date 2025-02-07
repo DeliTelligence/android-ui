@@ -36,13 +36,12 @@ package com.example.delitelligencefrontend.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.delitelligence.type.InventoryAdjustmentInputDto
 import com.example.delitelligencefrontend.model.InventoryAdjustment
 import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.model.Supplier
-import com.example.delitelligencefrontend.domain.GetProductsUseCase
-import com.example.delitelligencefrontend.domain.GetSupplierUseCase
-import com.example.delitelligencefrontend.domain.PostAdjustmentUseCase
+import com.example.delitelligencefrontend.domain.ProductsUseCase
+import com.example.delitelligencefrontend.domain.SupplierUseCase
+import com.example.delitelligencefrontend.domain.InventoryUseCase
 import com.example.delitelligencefrontend.enumformodel.AdjustmentType
 import com.example.delitelligencefrontend.model.mapper.InventoryAdjustmentMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,9 +52,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InventoryAdjustmentViewModel @Inject constructor(
-    private val postAdjustmentUseCase: PostAdjustmentUseCase,
-    private val getSuppliersUseCase: GetSupplierUseCase,
-    private val getProductsUseCase: GetProductsUseCase
+    private val postAdjustmentUseCase: InventoryUseCase,
+    private val getSuppliersUseCase: SupplierUseCase,
+    private val getProductsUseCase: ProductsUseCase
 ) : ViewModel() {
 
     private val _supplierName = MutableStateFlow("")

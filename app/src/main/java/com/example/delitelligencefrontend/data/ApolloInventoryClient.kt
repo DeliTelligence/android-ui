@@ -7,16 +7,12 @@ All code here is adapted from the video*/
 package com.example.delitelligencefrontend.data
 
 import com.apollographql.apollo.ApolloClient
-import com.example.delitelligence.CreateDeliSaleMutation
 import com.example.delitelligence.CreateInventoryAdjustmentMutation
-import com.example.delitelligence.GetAllProductsQuery
 import com.example.delitelligence.GetInventoryQuery
 import com.example.delitelligence.type.InventoryAdjustmentInputDto
-import com.example.delitelligencefrontend.domain.InventoryClient
+import com.example.delitelligencefrontend.domain.interfaces.InventoryClient
 import com.example.delitelligencefrontend.model.Inventory
-import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.model.mapper.toInventory
-import com.example.delitelligencefrontend.model.mapper.toProduct
 
 class ApolloInventoryClient(
     private val apolloClient: ApolloClient

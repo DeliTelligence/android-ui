@@ -5,13 +5,46 @@ All code here is adapted from the video*/
 
 package com.example.delitelligencefrontend.model.mapper
 
+import com.example.delitelligence.EmployeeLogInQuery
 import com.example.delitelligence.GetEmployeesQuery
+import com.example.delitelligence.type.EmployeePosition
+import com.example.delitelligencefrontend.enumformodel.EmployeeTitle
 import com.example.delitelligencefrontend.model.Employee
+import com.example.delitelligencefrontend.model.EmployeeFetch
+import java.util.UUID
 
-fun GetEmployeesQuery.GetEmployee.toEmployee(): Employee {
-    return Employee(
+fun GetEmployeesQuery.GetAllEmployee.toEmployee(): EmployeeFetch {
+    return EmployeeFetch(
+        id = id,
         employeeFirstName = employeeFirstName ?: "No First Name",
         employeeLastName = employeeLastName ?: "No Last Name",
-        hireDate = hireDate ?: "No Date"
+        employeeTitle = employeeTitle?.toEmployeeTitle() ?: EmployeeTitle.EMPLOYEE,
+        employeeLoggedIn = employeeLoggedIn ?: false,
+        hireDate = hireDate ?: "Unknown",
+        employeePassword = employeePassword ?: "No Password"
+
+
+
     )
 }
+
+fun EmployeeLogInQuery.EmployeeLogin.toEmployee(): Employee {
+    return Employee(
+        employeeId = id ?: "None",
+        employeeFirstName = employeeFirstName ?: "No First Name",
+        employeeLastName = employeeLastName ?: "No Last Name",
+        hireDate = hireDate ?: "No Date",
+        employeeTitle = employeeTitle?.toEmployeeTitle() ?: EmployeeTitle.EMPLOYEE,
+        employeeLoggedIn = employeeLoggedIn ?: false
+    )
+}
+
+fun EmployeePosition.toEmployeeTitle(): EmployeeTitle {
+    return when (this) {
+        EmployeePosition.EMPLOYEE -> EmployeeTitle.EMPLOYEE
+        EmployeePosition.MANAGER -> EmployeeTitle.MANAGER
+        EmployeePosition.ACCOUNTANT -> EmployeeTitle.ACCOUNTANT
+        EmployeePosition.UNKNOWN__ -> TODO()
+    }
+}
+
