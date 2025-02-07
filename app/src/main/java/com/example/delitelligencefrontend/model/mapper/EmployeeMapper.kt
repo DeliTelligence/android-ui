@@ -19,7 +19,12 @@ fun GetEmployeesQuery.GetAllEmployee.toEmployee(): EmployeeFetch {
         employeeFirstName = employeeFirstName ?: "No First Name",
         employeeLastName = employeeLastName ?: "No Last Name",
         employeeTitle = employeeTitle?.toEmployeeTitle() ?: EmployeeTitle.EMPLOYEE,
-        employeeLoggedIn = employeeLoggedIn ?: false
+        employeeLoggedIn = employeeLoggedIn ?: false,
+        hireDate = hireDate ?: "Unknown",
+        employeePassword = employeePassword ?: "No Password"
+
+
+
     )
 }
 

@@ -88,6 +88,8 @@ dependencies {
     implementation(libs.androidx.ui.test.android)
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.animation.core.lint)
     ksp(libs.hilt.compiler)
 
     implementation(libs.coil.compose)  // Add Coil Compose for image loading

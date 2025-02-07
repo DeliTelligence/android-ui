@@ -24,6 +24,7 @@ accessibilityTestFramework = "4.1.1"
 foundationLayoutAndroid = "1.7.4"
 uiTestAndroid = "1.8.0-alpha06"
 mapstructVersion = "1.5.2.Final"
+animationCoreLint = "1.8.0-beta01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -60,6 +61,7 @@ androidx-foundation-layout-android = { group = "androidx.compose.foundation", na
 androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }
 mapstruct = { group = "org.mapstruct", name = "mapstruct", version.ref = "mapstructVersion" }
 mapstruct-processor = { group = "org.mapstruct", name = "mapstruct-processor", version.ref = "mapstructVersion" }
+androidx-animation-core-lint = { group = "androidx.compose.animation", name = "animation-core-lint", version.ref = "animationCoreLint" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

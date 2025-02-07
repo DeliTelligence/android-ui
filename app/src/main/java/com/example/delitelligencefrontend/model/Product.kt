@@ -9,5 +9,7 @@ data class Product(
     val standardWeightProducts: List<StandardWeightProduct>?,
     val productPrice: Double?,
     val productImageDto: String?,
-    val productType: String?
-)
+    val productType: ProductType?,
+    val productDescription: String?,
+
+    )

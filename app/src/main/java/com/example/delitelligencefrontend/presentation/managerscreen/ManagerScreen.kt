@@ -33,7 +33,7 @@ fun ManagerScreen(navController: NavHostController) {
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = {
-                navController.navigate(Screen.ManageUserScreen.route)
+                navController.navigate(Screen.ManageEmployeeScreen.route)
             }) {
                 Text("Manage Users")
             }

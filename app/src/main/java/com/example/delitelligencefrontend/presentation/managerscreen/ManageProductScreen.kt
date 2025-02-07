@@ -24,13 +24,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.presentation.viewmodel.ManageProductViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageProductScreen(
-    viewModel: ManageProductViewModel = hiltViewModel()
+    viewModel: ManageProductViewModel = hiltViewModel(),
+    navController: NavController
 ) {
     val products by viewModel.products.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -52,7 +54,7 @@ fun ManageProductScreen(
                     .width(250.dp)
                     .padding(end = 16.dp)
             ) {
-                SearchBar(
+                SearchBarProduct(
                     searchQuery = searchQuery,
                     onQueryChange = { query -> viewModel.searchProducts(query) }
                 )
@@ -62,8 +64,7 @@ fun ManageProductScreen(
                 // Add Product Button
                 Button(
                     onClick = {
-                        // Handle add product
-                        // Example: navigate to an add product screen or show a dialog
+                        navController.navigate("create_product")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                     modifier = Modifier.fillMaxWidth()
@@ -81,7 +82,9 @@ fun ManageProductScreen(
             ) {
                 ProductDisplay(
                     products = products,
-                    onEdit = { viewModel.editProduct(it) },
+                    onEdit = { product ->
+                        navController.navigate("edit_product/${product.id}")
+                    },
                     onDelete = { viewModel.deleteProduct(it) }
                 )
             }
@@ -90,7 +93,7 @@ fun ManageProductScreen(
 }
 
 @Composable
-fun SearchBar(
+fun SearchBarProduct(
     searchQuery: String,
     onQueryChange: (String) -> Unit
 ) {

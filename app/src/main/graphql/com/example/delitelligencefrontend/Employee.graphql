@@ -25,6 +25,9 @@ query GetEmployees{
         employeeLastName
         employeeLoggedIn
         employeeTitle
+        hireDate
+        employeePassword
+
     }
 }
 

@@ -4,11 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.delitelligencefrontend.domain.EmployeesUseCase
 import com.example.delitelligencefrontend.domain.interfaces.EmployeeClient
+import com.example.delitelligencefrontend.model.Employee
 import com.example.delitelligencefrontend.model.EmployeeCreate
+import com.example.delitelligencefrontend.model.EmployeeFetch
 import com.example.delitelligencefrontend.model.EmployeeUpdate
+import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.model.mapper.DeliSaleMapper
 import com.example.delitelligencefrontend.model.mapper.PostEmployeeMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,6 +21,35 @@ import javax.inject.Inject
 class ManageEmployeeViewModel @Inject constructor(
     private val employeeUseCase: EmployeesUseCase
 ) : ViewModel() {
+
+    private val _employees = MutableStateFlow<List<EmployeeFetch>>(emptyList())
+    val employees: StateFlow<List<EmployeeFetch>> = _employees
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    init {
+        fetchAllEmployees()
+    }
+
+    fun fetchAllEmployees() {
+        viewModelScope.launch {
+            _employees.value = employeeUseCase.execute()
+        }
+    }
+
+    fun searchProducts(query: String) {
+        _searchQuery.value = query
+        viewModelScope.launch {
+            _employees.value = if (query.isEmpty()) {
+                employeeUseCase.execute()
+            } else {
+                employeeUseCase.execute().filter {
+                    it.employeeFirstName.contains(query, ignoreCase = true) ?: false
+                }
+            }
+        }
+    }
 
     fun createEmployee(employeeCreate: EmployeeCreate) {
         viewModelScope.launch {

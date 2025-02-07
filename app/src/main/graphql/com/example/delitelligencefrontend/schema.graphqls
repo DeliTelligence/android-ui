@@ -53,6 +53,8 @@ type EmployeeFetchDto {
   employeeLoggedIn: Boolean
 
   hireDate: String
+
+  employeePassword: String
 }
 
 """
@@ -74,13 +76,13 @@ input EmployeeInputCreateDto {
 input EmployeeInputUpdateDto {
   employeeId: ID!
 
-  employeeFirstName: String
+  employeeFirstName: String!
 
-  employeeLastName: String
+  employeeLastName: String!
 
-  employeeTitle: EmployeePosition
+  employeeTitle: EmployeePosition!
 
-  employeePassword: String
+  employeePassword: String!
 }
 
 enum EmployeePosition {
@@ -182,11 +184,13 @@ type ProductFetchDto {
   """
    Base64 encoded image data
   """
-  productType: String
+  productType: ProductType
+
+  productDescription: String
 }
 
 input ProductInputDto {
-  id: ID
+  id: ID!
 }
 
 enum ProductType {
@@ -195,6 +199,14 @@ enum ProductType {
   COLD_FOOD
 
   BREAD
+
+  MADE_FOOD_HOT
+
+  MADE_FOOD_COLD
+
+  MAIN_FILLING_FOOD
+
+  BREAKFAST_FOOD
 }
 
 """
@@ -203,20 +215,20 @@ enum ProductType {
 input ProductUpdateDto {
   id: ID!
 
-  productName: String
+  productName: String!
 
-  standardWeightProducts: [StandardWeightProductInputUpdateDto]
+  standardWeightProducts: [StandardWeightProductInputUpdateDto]!
 
-  productPrice: Float
+  productPrice: Float!
 
-  productImageDto: String
+  productImageDto: String!
 
   """
    Base64 encoded image data
   """
-  productDescription: String
+  productDescription: String!
 
-  productType: ProductType
+  productType: ProductType!
 }
 
 type Query {
@@ -292,7 +304,7 @@ input StandardWeightProductInputDto {
 }
 
 input StandardWeightProductInputUpdateDto {
-  standardWeightValue: Float
+  standardWeightValue: Float!
 
   standardWeight: StandardWeightInputUpdateDto!
 }

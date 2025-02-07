@@ -1,3 +1,13 @@
+mutation CreateProduct($input: ProductCreateDto!){
+    createProduct(input: $input)
+
+}
+
+mutation EditProduct($input: ProductUpdateDto!){
+    editProduct(input: $input)
+}
+
+
 query GetProductsByType($category: ProductType!) {
     getProductsByType(category: $category) {
         id
@@ -11,6 +21,7 @@ query GetProductsByType($category: ProductType!) {
             }
         }
         productType
+        productDescription
     }
 }
 query GetProductByID($id: ID!) {
@@ -26,6 +37,7 @@ query GetProductByID($id: ID!) {
             }
         }
         productType
+        productDescription
     }
 }
 
@@ -43,5 +55,6 @@ query GetAllProducts{
             }
         }
         productType
+        productDescription
     }
 }
