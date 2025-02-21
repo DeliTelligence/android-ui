@@ -138,6 +138,7 @@ fun EmployeeEditScreen(
                             )
 
                         }
+                        navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
                         navController.popBackStack()
                     },
                     modifier = Modifier.fillMaxWidth()

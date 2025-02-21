@@ -11,5 +11,4 @@ data class Product(
     val productImageDto: String?,
     val productType: ProductType?,
     val productDescription: String?,
-
     )

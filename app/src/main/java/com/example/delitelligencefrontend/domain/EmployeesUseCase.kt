@@ -33,5 +33,10 @@ class EmployeesUseCase(
         return employeeClient
             .updateEmployee(input)
     }
+
+    suspend fun executeDelete(id: String): String? {
+        return employeeClient.deleteEmployee(id)
+    }
+
 }
 

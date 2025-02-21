@@ -34,20 +34,30 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.delitelligencefrontend.enumformodel.PortionType
 import com.example.delitelligencefrontend.enumformodel.SaleType
+import com.example.delitelligencefrontend.enumformodel.StandardType
 import com.example.delitelligencefrontend.model.DeliProduct
 import com.example.delitelligencefrontend.model.DeliSale
 import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.presentation.viewmodel.ProductsViewModel
+import com.example.delitelligencefrontend.presentation.viewmodel.ScalesViewModel
 import kotlin.math.abs
 
 @Composable
 fun MakeProductScreen(
-    productsViewModel: ProductsViewModel = hiltViewModel()
+    productsViewModel: ProductsViewModel = hiltViewModel(),
+    scalesViewModel: ScalesViewModel = hiltViewModel()
 ) {
+    val skipMainFillingProductIds = listOf(
+        "44ead926-e583-4735-bc4d-721c17f5da27",
+        "b64afc5e-911d-4a2a-875d-a37697f7a60d",
+        "c8db3e8a-8edd-4b70-a0cd-4bfcf2d8b517"
+    )
+
     val coldFoodProducts by productsViewModel.coldFoodProducts.collectAsState()
     val hotFoodProducts by productsViewModel.hotFoodProducts.collectAsState()
     val mainFillingProducts by productsViewModel.mainFillingProducts.collectAsState()
     val fillingProducts by productsViewModel.fillingProducts.collectAsState()
+    val breakfastProducts by productsViewModel.breakfastProducts.collectAsState()
 
     var currentDeliSale by remember { mutableStateOf<DeliSale?>(null) }
     var currentDeliProduct by remember { mutableStateOf<DeliProduct?>(null) }
@@ -56,8 +66,6 @@ fun MakeProductScreen(
     LaunchedEffect(Unit) {
         productsViewModel.fetchAllProducts()
     }
-
-
 
     LaunchedEffect(currentDeliProduct) {
         Log.d("MakeProductScreen", "currentDeliProduct changed: $currentDeliProduct")
@@ -74,7 +82,7 @@ fun MakeProductScreen(
                 quantity = currentDeliProduct!!.totalQuantity(),
                 handMade = true
             )
-            productsViewModel.setCurrentDeliSale(currentDeliSale!!)
+            scalesViewModel.setCurrentDeliSale(currentDeliSale!!)
         } else {
             currentDeliSale = null
         }
@@ -87,39 +95,36 @@ fun MakeProductScreen(
             TopLeftQuadrant(
                 coldFoodProducts = coldFoodProducts,
                 hotFoodProducts = hotFoodProducts,
-                selectedProduct = currentDeliProduct?.products?.firstOrNull(),
+                selectedProduct = currentDeliProduct?.deliProduct,
                 onProductSelected = { product ->
-                    if (currentDeliProduct == null) {
-                        currentDeliProduct = DeliProduct(
-                            deliProduct = product,
-                            products = emptyList(),
-                            combinedWeight = 0.0,
-                            portionType = PortionType.FILLING
-                        )
-                    } else {
-                        currentDeliProduct = currentDeliProduct?.copy(
-                            products = currentDeliProduct!!.products + product
-                        )
-                    }
+                    // Always create a new DeliProduct when a new product is selected
+                    currentDeliProduct = DeliProduct(
+                        deliProduct = product,
+                        products = emptyList(),
+                        combinedWeight = 0.0,
+                        portionType = PortionType.FILLING
+                    )
                 }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Bottom left quadrant
-            if (currentDeliProduct != null) {
+            currentDeliProduct?.let { deliProduct ->
                 BottomLeftQuadrant(
+                    skipMainFillingProductIds = skipMainFillingProductIds,
                     mainFillingProducts = mainFillingProducts,
                     fillingProducts = fillingProducts,
-                    currentDeliProduct = currentDeliProduct,
+                    breakfastProducts = breakfastProducts,
+                    currentDeliProduct = deliProduct,
                     onMainFillingSelected = { mainFilling ->
-                        currentDeliProduct = currentDeliProduct?.copy(
-                            products = currentDeliProduct!!.products + mainFilling
+                        currentDeliProduct = deliProduct.copy(
+                            products = deliProduct.products + mainFilling
                         )
                     },
                     onFillingSelected = { filling ->
-                        currentDeliProduct = currentDeliProduct?.copy(
-                            products = currentDeliProduct!!.products + filling
+                        currentDeliProduct = deliProduct.copy(
+                            products = deliProduct.products + filling
                         )
                     }
                 )
@@ -133,6 +138,7 @@ fun MakeProductScreen(
             RightQuadrant(
                 currentDeliProduct = currentDeliProduct,
                 productsViewModel = productsViewModel,
+                scalesViewModel = scalesViewModel,
                 onFinishProduct = {
                     currentDeliProduct?.let { deliProduct ->
                         finishedDeliProducts = finishedDeliProducts + deliProduct
@@ -194,64 +200,96 @@ fun TopLeftQuadrant(
 
 @Composable
 fun BottomLeftQuadrant(
+    skipMainFillingProductIds: List<String>,
     mainFillingProducts: List<Product>,
     fillingProducts: List<Product>,
+    breakfastProducts: List<Product>,
     currentDeliProduct: DeliProduct?,
     onMainFillingSelected: (Product) -> Unit,
     onFillingSelected: (Product) -> Unit
 ) {
+    val shouldSkipMainFilling = currentDeliProduct?.deliProduct?.id in skipMainFillingProductIds
+    val isBreakfastRoll = currentDeliProduct?.deliProduct?.productName == "Breakfast Roll"
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        if (currentDeliProduct?.deliProduct != null && currentDeliProduct.products.isNullOrEmpty()) {
-            Text("Select Main Filling", style = MaterialTheme.typography.headlineSmall)
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 8.dp)
-            ) {
-                items(mainFillingProducts) { product ->
-                    ProductCard(
-                        product = product,
-                        modifier = Modifier.padding(end = 16.dp),
-                        isSelected = false,
-                        onProductSelected = onMainFillingSelected
-                    )
+        when {
+            isBreakfastRoll -> {
+                Text("Select Breakfast Items", style = MaterialTheme.typography.headlineSmall)
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    items(breakfastProducts) { product ->
+                        if (currentDeliProduct != null) {
+                            ProductCard(
+                                product = product,
+                                modifier = Modifier.padding(end = 16.dp),
+                                isSelected = currentDeliProduct.products.contains(product),
+                                onProductSelected = onFillingSelected
+                            )
+                        }
+                    }
                 }
             }
-        } else {
-            Text("Select Additional Fillings", style = MaterialTheme.typography.headlineSmall)
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 8.dp)
-            ) {
-                items(fillingProducts) { product ->
-                    ProductCard(
-                        product = product,
-                        modifier = Modifier.padding(end = 16.dp),
-                        isSelected = currentDeliProduct?.products?.contains(product) == true,
-                        onProductSelected = onFillingSelected
-                    )
+            currentDeliProduct?.deliProduct != null && currentDeliProduct.products.isEmpty() && !shouldSkipMainFilling -> {
+                Text("Select Main Filling", style = MaterialTheme.typography.headlineSmall)
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    items(mainFillingProducts) { product ->
+                        ProductCard(
+                            product = product,
+                            modifier = Modifier.padding(end = 16.dp),
+                            isSelected = false,
+                            onProductSelected = onMainFillingSelected
+                        )
+                    }
+                }
+            }
+            else -> {
+                Text("Select Additional Fillings", style = MaterialTheme.typography.headlineSmall)
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    items(fillingProducts) { product ->
+                        ProductCard(
+                            product = product,
+                            modifier = Modifier.padding(end = 16.dp),
+                            isSelected = currentDeliProduct?.products?.contains(product) == true,
+                            onProductSelected = onFillingSelected
+                        )
+                    }
                 }
             }
         }
     }
 }
-
 @Composable
 fun RightQuadrant(
     currentDeliProduct: DeliProduct?,
     productsViewModel: ProductsViewModel = hiltViewModel(),
+    scalesViewModel: ScalesViewModel = hiltViewModel(),
     onFinishProduct: () -> Unit
 ) {
-    val displayedValue by productsViewModel.displayedValue.collectAsState()
-    val isScaleConnected by productsViewModel.isScaleConnected.collectAsState()
-    val isWeighing by productsViewModel.isWeighing.collectAsState()
-    val scaleStatus by productsViewModel.scaleStatus.collectAsState()
-    val isWeightErrorSignificant by productsViewModel.isWeightErrorSignificant.collectAsState()
-    val currentDeliSale by productsViewModel.currentDeliSale.collectAsState()
+    // Observe states from the ViewModels
+    val displayedValue by scalesViewModel.displayedValue.collectAsState()
+    val isWeighing by scalesViewModel.isWeighing.collectAsState()
+    val isWeightErrorSignificant by scalesViewModel.isWeightErrorSignificant.collectAsState()
+    val currentDeliSale by scalesViewModel.currentDeliSale.collectAsState()
 
+    // Use systemStartViewModel for scale connection and notification status
+    val isScaleConnected by scalesViewModel.isScaleConnected.collectAsState()
+    val areNotificationsOn by scalesViewModel.areNotificationsEnabled.collectAsState()
+    val scaleStatus by scalesViewModel.scaleStatus.collectAsState()
+
+    // State for weighing error message
+    var weighingErrorMessage by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -260,7 +298,6 @@ fun RightQuadrant(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
         Box(
             modifier = Modifier
                 .size(250.dp)
@@ -301,10 +338,15 @@ fun RightQuadrant(
         // Weigh button
         Button(
             onClick = {
-
-                currentDeliProduct?.let { productsViewModel.fetchWeightData(it) }
+                if (isScaleConnected && areNotificationsOn && !isWeighing && currentDeliProduct != null) {
+                    scalesViewModel.fetchWeightData(currentDeliProduct, StandardType.FILLING)
+                    weighingErrorMessage = null // Clear error message if it's successful
+                } else {
+                    // Set error message when conditions are not met
+                    weighingErrorMessage = "Weighing Error: Scale not connected or notifications not enabled"
+                }
             },
-            enabled = isScaleConnected && !isWeighing && currentDeliProduct != null,
+            enabled = true, // Always enabled, decision handled inside onClick
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
@@ -312,9 +354,18 @@ fun RightQuadrant(
             Text(if (isWeighing) "Weighing..." else "Weigh")
         }
 
+        // Display weighing error if present
+        weighingErrorMessage?.let {
+            Text(
+                text = it,
+                color = Color.Red, // Display error in red
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+
         // TARE button
         Button(
-            onClick = { productsViewModel.tareScale() },
+            onClick = { scalesViewModel.tareScale() },
             enabled = isScaleConnected,
             modifier = Modifier
                 .fillMaxWidth()
@@ -325,7 +376,7 @@ fun RightQuadrant(
 
         // Price display
         Text(
-            text = "Price: $${String.format("%.2f", currentDeliProduct?.calculateTotalPrice() ?: 0f)}",
+            text = "Price: €${String.format("%.2f", currentDeliProduct?.calculateTotalPrice() ?: 0f)}",
             style = MaterialTheme.typography.titleLarge
         )
 
@@ -351,7 +402,7 @@ fun RightQuadrant(
         ) {
             Text("Finish Product")
         }
-        // Add some extra space at the bottom to ensure everything is visible
+
         Spacer(modifier = Modifier.weight(1f))
     }
 }

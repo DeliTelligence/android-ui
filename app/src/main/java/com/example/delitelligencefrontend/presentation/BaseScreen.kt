@@ -10,6 +10,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.delitelligencefrontend.enumformodel.EmployeeTitle
+import com.example.delitelligencefrontend.model.Employee
+import com.example.delitelligencefrontend.model.Session
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -17,22 +20,24 @@ import kotlinx.coroutines.launch
 @Composable
 fun BaseScreen(
     navController: NavHostController,
+    session: Session,
     content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val currentEmployee by remember { mutableStateOf(session.getUser()) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                DrawerContent(navController, scope, drawerState)
+                DrawerContent(navController, scope, drawerState, currentEmployee)
             }
         }
     ) {
         Scaffold(
             topBar = { TopBar(drawerState, scope) },
-            bottomBar = { BottomBar(navController) }
+            bottomBar = { BottomBar(navController, currentEmployee) }
         ) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
                 content()
@@ -62,16 +67,19 @@ fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
 fun DrawerContent(
     navController: NavHostController,
     scope: CoroutineScope,
-    drawerState: DrawerState
+    drawerState: DrawerState,
+    currentEmployee: Employee?
 ) {
     Column {
         Text("Navigation Drawer", modifier = Modifier.padding(16.dp))
         Divider()
         NavigationItem(navController, scope, drawerState, "Store", Icons.Filled.ShoppingCart, Screen.StoreScreen.route)
         NavigationItem(navController, scope, drawerState, "Inventory", Icons.Filled.List, Screen.InventoryScreen.route)
-        Spacer(modifier = Modifier.height(16.dp))
-        Divider()
-        NavigationItem(navController, scope, drawerState, "Manager Home", Icons.Filled.AccountCircle, Screen.ManagerScreen.route)
+        if (currentEmployee?.employeeTitle == EmployeeTitle.MANAGER) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider()
+            NavigationItem(navController, scope, drawerState, "Manager Home", Icons.Filled.AccountCircle, Screen.ManagerScreen.route)
+        }
     }
 }
 
@@ -102,7 +110,7 @@ fun NavigationItem(
 }
 
 @Composable
-fun BottomBar(navController: NavHostController) {
+fun BottomBar(navController: NavHostController, currentEmployee: Employee?) {
     NavigationBar {
         val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
@@ -128,16 +136,18 @@ fun BottomBar(navController: NavHostController) {
                 }
             }
         )
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Manager") },
-            label = { Text("Manager") },
-            selected = currentRoute == Screen.ManagerScreen.route,
-            onClick = {
-                navController.navigate(Screen.ManagerScreen.route) {
-                    popUpTo(navController.graph.startDestinationId)
-                    launchSingleTop = true
+        if (currentEmployee?.employeeTitle == EmployeeTitle.MANAGER) {
+            NavigationBarItem(
+                icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "Manager") },
+                label = { Text("Manager") },
+                selected = currentRoute == Screen.ManagerScreen.route,
+                onClick = {
+                    navController.navigate(Screen.ManagerScreen.route) {
+                        popUpTo(navController.graph.startDestinationId)
+                        launchSingleTop = true
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }

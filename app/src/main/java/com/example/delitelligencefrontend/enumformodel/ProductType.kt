@@ -8,5 +8,8 @@ enum class ProductType {
     MADE_FOOD_COLD,
     MAIN_FILLING_FOOD,
     BREAKFAST_FOOD,
+    SALAD,
+    TO_GO_BAG,
     UNKNOWN
+
 }
