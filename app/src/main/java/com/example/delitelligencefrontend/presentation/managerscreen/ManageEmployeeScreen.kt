@@ -1,3 +1,8 @@
+/*https://chatgpt.com
+prompt: 'build a screen that will display the employees data from the graphql request and display it in rows
+and add, edit and delete buttons mapped by the viewModel.
+*/
+
 package com.example.delitelligencefrontend.presentation.managerscreen
 
 import androidx.compose.foundation.background
@@ -18,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,6 +46,21 @@ fun ManageEmployeeScreen(
     val employees by viewModel.employees.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.fetchAllEmployees()
+    }
+
+    // Refresh products when returning from create or edit screens
+    LaunchedEffect(navController.currentBackStackEntry) {
+        navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("refresh")?.let {
+            if (it) {
+                viewModel.fetchAllEmployees()
+                navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>("refresh")
+            }
+        }
+    }
+
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Manage Employee Screen") })
@@ -59,7 +80,7 @@ fun ManageEmployeeScreen(
             ) {
                 SearchBar(
                     searchQuery = searchQuery,
-                    onQueryChange = { query -> viewModel.searchProducts(query) }
+                    onQueryChange = { query -> viewModel.searchEmployees(query) }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -87,7 +108,8 @@ fun ManageEmployeeScreen(
                     onEdit = { employee ->
                         navController.navigate("edit_employee/${employee.id}")
                     },
-                    onDelete = { /* Handle delete employee logic */ },
+                    onDelete = { viewModel.deleteEmployee(it.id)
+                        viewModel.fetchAllEmployees()},
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -172,6 +194,32 @@ fun EmployeeRow(
             )
             Text(
                 text = employee.hireDate,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Calculate waste per transaction percentage and determine color and message
+            val wastePerTransaction = if (employee.totalTransactions > 0) {
+                employee.totalWastePercentage / employee.totalTransactions
+            } else {
+                0.0
+            }
+
+            val (wasteColor, wasteMessage) = when {
+                wastePerTransaction <= -10 -> Color.Red to "Underfilling on average by %.2f%%".format(-wastePerTransaction)
+                wastePerTransaction in -9.99..-6.0 -> Color.Yellow to "Underfilling on average by %.2f%%".format(-wastePerTransaction)
+                wastePerTransaction < 0 -> Color.Green to "Underfilling by %.2f%%".format(-wastePerTransaction)
+                wastePerTransaction <= 10 -> Color.Green to "Overfilling by %.2f%%".format(wastePerTransaction)
+                wastePerTransaction in 6.0..9.99 -> Color.Yellow to "Overfilling by %.2f%%".format(wastePerTransaction)
+                else -> Color.Red to "Overfilling by %.2f%%".format(wastePerTransaction)
+            }
+
+            Text(
+                text = wasteMessage,
+                color = wasteColor,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

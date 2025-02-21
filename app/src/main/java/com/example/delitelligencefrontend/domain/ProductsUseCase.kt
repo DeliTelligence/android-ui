@@ -11,6 +11,7 @@ import com.example.delitelligence.type.ProductType
 import com.example.delitelligence.type.ProductUpdateDto
 import com.example.delitelligencefrontend.domain.interfaces.ProductClient
 import com.example.delitelligencefrontend.model.Product
+import com.example.delitelligencefrontend.model.StandardWeight
 
 class ProductsUseCase(
     private val productClient: ProductClient
@@ -32,5 +33,16 @@ class ProductsUseCase(
 
     suspend fun execute(input: ProductUpdateDto): String?{
         return productClient.updateProduct(input)
+    }
+
+    suspend fun executeDelete(id: String): String? {
+        return productClient.deleteProduct(id)
+    }
+
+    suspend fun executeGetStandardWeights(): List<StandardWeight> {
+        return productClient.getAllStandardWeights()
+    }
+    suspend fun executeProductByName(productName: String): Product? {
+        return productClient.getProductByName(productName)
     }
 }

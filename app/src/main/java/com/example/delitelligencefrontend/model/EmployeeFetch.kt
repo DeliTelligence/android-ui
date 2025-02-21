@@ -9,6 +9,8 @@ data class EmployeeFetch(
     val employeeLoggedIn: Boolean,
     val employeeTitle: EmployeeTitle,
     val hireDate: String,
-    val employeePassword: String
+    val employeePassword: String,
+    val totalTransactions: Int,
+    val totalWastePercentage: Double
 )
 

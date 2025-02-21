@@ -3,6 +3,7 @@ package com.example.delitelligencefrontend.presentation.managerscreen
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,42 +45,50 @@ fun ProductEditScreen(
     viewModel: ManageProductViewModel = hiltViewModel()
 ) {
     val products by viewModel.products.collectAsState()
+    val standardWeights by viewModel.standardWeights.collectAsState()
     val product = products.find { it.id == productId }
 
-    var productName by remember { mutableStateOf(product?.productName ?: "") }
-    var standardWeightProducts by remember {
+    var productName by remember(product) { mutableStateOf(product?.productName ?: "") }
+    var standardWeightProducts by remember(standardWeights, product) {
         mutableStateOf(
-            product?.standardWeightProducts?.map {
+            standardWeights.map { standardWeight ->
+                val existingProduct = product?.standardWeightProducts?.find { swp ->
+                    swp.standardWeight?.standardType == standardWeight.standardType
+                }
                 StandardWeightProduct(
-                    standardWeight = it.standardWeight,
-                    standardWeightValue = it.standardWeightValue
+                    standardWeight = StandardWeight(
+                        standardWeightId = standardWeight.standardWeightId ?: "",
+                        standardType = standardWeight.standardType
+                    ),
+                    standardWeightValue = existingProduct?.standardWeightValue ?: 0f
                 )
-            } ?: listOf(
-                StandardWeightProduct(
-                    standardWeight = StandardWeight("", com.example.delitelligencefrontend.enumformodel.StandardType.UNKNOWN),
-                    standardWeightValue = 0f
-                )
-            )
+            }
         )
     }
-    var productPrice by remember { mutableStateOf(product?.productPrice ?: 0.0) }
-    var productImageDto by remember { mutableStateOf(product?.productImageDto ?: "") }
-    var productDescription by remember { mutableStateOf(product?.productDescription ?: "") }
-    var productType by remember { mutableStateOf(product?.productType ?: ProductType.HOT_FOOD) }
+    var productPrice by remember(product) { mutableStateOf(product?.productPrice ?: 0.0) }
+    var productImageDto by remember(product) { mutableStateOf(product?.productImageDto ?: "") }
+    var productDescription by remember(product) { mutableStateOf(product?.productDescription ?: "") }
+    var productType by remember(product) { mutableStateOf(product?.productType ?: ProductType.HOT_FOOD) }
 
     var expandedProductType by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
+    // Helper functions for image conversion
     fun Bitmap.toBase64(): String {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        this.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+        this.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
     fun String.toByteArrayOrNull(): ByteArray? = try {
-        Base64.decode(this, Base64.DEFAULT)
+        if (this.startsWith("data:image")) {
+            val base64Image = this.substringAfter("base64,")
+            Base64.decode(base64Image, Base64.DEFAULT)
+        } else {
+            Base64.decode(this, Base64.DEFAULT)
+        }
     } catch (e: IllegalArgumentException) {
         null
     }
@@ -98,6 +107,7 @@ fun ProductEditScreen(
                 val bitmap = BitmapFactory.decodeStream(inputStream)
                 productImageDto = bitmap?.toBase64() ?: ""
                 inputStream?.close()
+                Log.d("ProductEditScreen", "Image selected, base64 length: ${productImageDto.length}")
             }
         }
     )
@@ -105,9 +115,7 @@ fun ProductEditScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(if (productId == null) "Create Product" else "Edit Product")
-                },
+                title = { Text(if (productId == null) "Create Product" else "Edit Product") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
@@ -163,7 +171,7 @@ fun ProductEditScreen(
                     expanded = expandedProductType,
                     onDismissRequest = { expandedProductType = false }
                 ) {
-                    ProductType.values().forEach { type ->
+                    ProductType.entries.forEach { type ->
                         DropdownMenuItem(
                             text = { Text(type.name) },
                             onClick = {
@@ -175,48 +183,16 @@ fun ProductEditScreen(
                 }
             }
 
-            // Standard Weight Products
             Text("Standard Weight Products", style = MaterialTheme.typography.titleMedium)
             standardWeightProducts.forEachIndexed { index, standardWeightProduct ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    var expandedStandardType by remember { mutableStateOf(false) }
-                    ExposedDropdownMenuBox(
-                        expanded = expandedStandardType,
-                        onExpandedChange = { expandedStandardType = !expandedStandardType }
-                    ) {
-                        TextField(
-                            value = standardWeightProduct.standardWeight?.standardType?.name ?: "",
-                            onValueChange = { },
-                            readOnly = true,
-                            label = { Text("Type") },
-                            modifier = Modifier
-                                .weight(1f)
-                                .menuAnchor()
-                        )
-                        ExposedDropdownMenu(
-                            expanded = expandedStandardType,
-                            onDismissRequest = { expandedStandardType = false }
-                        ) {
-                            com.example.delitelligencefrontend.enumformodel.StandardType.values().forEach { type ->
-                                DropdownMenuItem(
-                                    text = { Text(type.name) },
-                                    onClick = {
-                                        val updatedList = standardWeightProducts.toMutableList()
-                                        updatedList[index] = standardWeightProduct.copy(
-                                            standardWeight = standardWeightProduct.standardWeight?.copy(
-                                                standardType = type
-                                            )
-                                        )
-                                        standardWeightProducts = updatedList
-                                        expandedStandardType = false
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    Text(
+                        text = standardWeightProduct.standardWeight?.standardType?.name ?: "Unknown",
+                        modifier = Modifier.weight(1f)
+                    )
                     TextField(
                         value = standardWeightProduct.standardWeightValue?.toString() ?: "",
                         onValueChange = { newValue ->
@@ -233,19 +209,6 @@ fun ProductEditScreen(
                 }
             }
 
-            Button(
-                onClick = {
-                    standardWeightProducts = standardWeightProducts + StandardWeightProduct(
-                        standardWeight = StandardWeight("", com.example.delitelligencefrontend.enumformodel.StandardType.UNKNOWN),
-                        standardWeightValue = 0f
-                    )
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Add Standard Weight")
-            }
-
-            // Image selection
             Text("Product Image", style = MaterialTheme.typography.titleMedium)
             Box(
                 modifier = Modifier
@@ -322,8 +285,8 @@ fun ProductEditScreen(
                             )
                         )
                     }
-                    navController.popBackStack()
-                },
+                    navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+                    navController.popBackStack()                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(if (productId == null) "Create" else "Update")

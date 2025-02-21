@@ -1,3 +1,11 @@
+/*https://chatgpt.com
+prompt: 'build a screen that will display the products data from the graphql request and display it in rows
+and add, edit and delete buttons mapped by the viewModel aswell as using the search query made in the view model
+to search the products.
+*/
+
+
+
 package com.example.delitelligencefrontend.presentation.managerscreen
 
 import android.graphics.Bitmap
@@ -36,6 +44,20 @@ fun ManageProductScreen(
 ) {
     val products by viewModel.products.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchAllProducts()
+    }
+
+    // Refresh products when returning from create or edit screens
+    LaunchedEffect(navController.currentBackStackEntry) {
+        navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("refresh")?.let {
+            if (it) {
+                viewModel.fetchAllProducts()
+                navController.currentBackStackEntry?.savedStateHandle?.remove<Boolean>("refresh")
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -85,7 +107,8 @@ fun ManageProductScreen(
                     onEdit = { product ->
                         navController.navigate("edit_product/${product.id}")
                     },
-                    onDelete = { viewModel.deleteProduct(it) }
+                    onDelete = { viewModel.deleteProduct(it)
+                        viewModel.fetchAllProducts()}
                 )
             }
         }

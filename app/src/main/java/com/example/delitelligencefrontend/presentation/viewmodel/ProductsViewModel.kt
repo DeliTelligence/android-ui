@@ -86,8 +86,14 @@ class ProductsViewModel @Inject constructor(
     private val _hotFoodProductsFilling = MutableStateFlow<List<Product>>(emptyList())
     val hotFoodProductsFilling: StateFlow<List<Product>> = _hotFoodProductsFilling
 
+    private val _saladProduct = MutableStateFlow<List<Product>>(emptyList())
+    val saladProduct: StateFlow<List<Product>> = _saladProduct
+
     private val _breakfastProducts = MutableStateFlow<List<Product>>(emptyList())
     val breakfastProducts: StateFlow<List<Product>> = _breakfastProducts
+
+    private val _apiStatus = MutableStateFlow("")
+    val apiStatus: StateFlow<String> = _apiStatus
 
     // Product-related state flows
     private val _allProducts = MutableStateFlow<List<Product>>(emptyList())
@@ -105,32 +111,11 @@ class ProductsViewModel @Inject constructor(
     private val _fillingProducts = MutableStateFlow<List<Product>>(emptyList())
     val fillingProducts: StateFlow<List<Product>> = _fillingProducts
 
-    // Scale-related state flows
-    private val _displayedValue = MutableStateFlow<Pair<Double, Boolean>>(Pair(0.0, false))
-    val displayedValue: StateFlow<Pair<Double, Boolean>> = _displayedValue
-    // The Pair contains (value, isDifference)
 
-    private val _scaleStatus = MutableStateFlow("")
-    val scaleStatus: StateFlow<String> = _scaleStatus
-
-    private val _isScaleConnected = MutableStateFlow(false)
-    val isScaleConnected: StateFlow<Boolean> = _isScaleConnected
-
-    private val _isWeighing = MutableStateFlow(false)
-    val isWeighing: StateFlow<Boolean> = _isWeighing
-
-    private val _areNotificationsEnabled = MutableStateFlow(false)
-    val areNotificationsEnabled: StateFlow<Boolean> = _areNotificationsEnabled
-
-    private val _isWeightErrorSignificant = MutableStateFlow(false)
-    val isWeightErrorSignificant: StateFlow<Boolean> = _isWeightErrorSignificant
-
-    private val _currentDeliSale = MutableStateFlow<DeliSale?>(null)
-    val currentDeliSale: StateFlow<DeliSale?> = _currentDeliSale
 
     init {
         fetchAllProducts()
-        connectToScaleAndEnableNotifications()
+//        connectToScaleAndEnableNotifications()
     }
 
      fun fetchAllProducts() {
@@ -144,143 +129,15 @@ class ProductsViewModel @Inject constructor(
                 _fillingProducts.value = fetchedProducts.filter { it.productType?.equals(ProductType.COLD_FOOD) == true }
                 _hotFoodProductsFilling.value = fetchedProducts.filter { it.productType?.equals(ProductType.HOT_FOOD) == true }
                 _breakfastProducts.value = fetchedProducts.filter { it.productType?.equals(ProductType.BREAKFAST_FOOD) == true }
+                _saladProduct.value = fetchedProducts.filter { it.productType?.equals(ProductType.BREAKFAST_FOOD) == true }
 
 
             } catch (e: Exception) {
-                _scaleStatus.value = "Error fetching products: ${e.message}"
+                _apiStatus.value = "Error fetching products: ${e.message}"
             }
         }
     }
 
-    private fun connectToScaleAndEnableNotifications() {
-        viewModelScope.launch {
-            try {
-                val connectResponse = weightApiService.connectToScale()
-                if (connectResponse.isSuccessful) {
-                    _isScaleConnected.value = true
-                    _scaleStatus.value = "Connected to scale"
-
-                    val notifyResponse = weightApiService.enableNotifications()
-                    if (notifyResponse.isSuccessful) {
-                        _areNotificationsEnabled.value = true
-                        _scaleStatus.value = "Connected and notifications enabled"
-                    } else {
-                        _scaleStatus.value = "Connected, but failed to enable notifications"
-                    }
-                } else {
-                    _scaleStatus.value = "Failed to connect to scale"
-                }
-            } catch (e: Exception) {
-                _scaleStatus.value = "Error connecting to scale: ${e.message}"
-            }
-        }
-    }
-
-
-    fun fetchWeightData(deliProduct: DeliProduct) {
-        if (_isScaleConnected.value == true && _areNotificationsEnabled.value == true) {
-            _isWeighing.value = true
-            viewModelScope.launch {
-                try {
-                    val response = weightApiService.getWeightData()
-                    if (response.isSuccessful) {
-                        response.body()?.let { weightResponse ->
-                            val actualWeight = weightResponse.weight.toDouble()
-                            _displayedValue.value = Pair(actualWeight, false)
-
-                            // Calculate expected weight based on portionType
-                            val expectedWeight = when (deliProduct.portionType) {
-                                PortionType.SALAD, PortionType.FILLING -> {
-                                    deliProduct.products.sumOf { product ->
-                                        product.standardWeightProducts?.sumOf {
-                                            if (deliProduct.portionType == PortionType.SALAD && it.standardWeight?.standardType == StandardType.SALAD
-                                                || deliProduct.portionType == PortionType.FILLING && it.standardWeight?.standardType == StandardType.FILLING) {
-                                                it.standardWeightValue?.toDouble() ?: 0.0
-                                            } else 0.0
-                                        } ?: 0.0
-                                    }
-                                }
-                                PortionType.QUANTITY -> 0.0
-                            }
-
-                            // Calculate weight error
-                            val error = actualWeight - expectedWeight
-
-                            // Check if error is significant (more than 10%)
-                            val isSignificantError = expectedWeight != 0.0 && abs(error / expectedWeight) > 0.1
-                            _isWeightErrorSignificant.value = isSignificantError
-
-                            // After 1 second, show the difference
-                            delay(1000)
-                            _displayedValue.value = Pair(error, true)
-
-                            // Update the currentDeliSale with the weight data and calculated values
-                            _currentDeliSale.value = _currentDeliSale.value?.copy(
-                                saleWeight = actualWeight,
-                                differenceWeight = error,
-                                wastePerSaleValue = error * deliProduct.calculateTotalPrice()
-                            )
-                        }
-                    } else {
-                        _scaleStatus.value = "Error fetching weight data"
-                    }
-                } catch (e: Exception) {
-                    _scaleStatus.value = "Error fetching weight data: ${e.message}"
-                } finally {
-                    _isWeighing.value = false
-                }
-            }
-        } else {
-            _scaleStatus.value = "Scale not connected or notifications not enabled"
-        }
-    }
-    fun tareScale() {
-        if (_isScaleConnected.value) {
-            viewModelScope.launch {
-                try {
-                    val response = weightApiService.tareScale()
-                    if (response.isSuccessful) {
-                        _displayedValue.value = Pair(0.0, false)
-                        _scaleStatus.value = "Scale tared"
-                    } else {
-                        _scaleStatus.value = "Failed to tare scale"
-                    }
-                } catch (e: Exception) {
-                    _scaleStatus.value = "Error taring scale: ${e.message}"
-                }
-            }
-        } else {
-            _scaleStatus.value = "Scale not connected"
-        }
-    }
-
-    fun disableNotificationsOnly() {
-        if (_isScaleConnected.value && _areNotificationsEnabled.value) {
-            viewModelScope.launch {
-                try {
-                    val response = weightApiService.disableNotifications()
-                    if (response.isSuccessful) {
-                        _areNotificationsEnabled.value = false
-                        _scaleStatus.value = "Notifications disabled"
-                    } else {
-                        _scaleStatus.value = "Failed to disable notifications"
-                    }
-                } catch (e: Exception) {
-                    _scaleStatus.value = "Error disabling notifications: ${e.message}"
-                }
-            }
-        }
-    }
-
-    fun setCurrentDeliSale(deliSale: DeliSale) {
-        _currentDeliSale.value = deliSale
-        Log.d("ViewModel", "Set Current DeliSale: $deliSale")
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        disableNotificationsOnly()
-    }
 
     fun postDeliSale(deliSale: DeliSale) {
         viewModelScope.launch {
@@ -295,35 +152,33 @@ class ProductsViewModel @Inject constructor(
 
                 val response = postDeliSaleUseCase.execute(inputDto)
                 if (response != null) {
-                    _scaleStatus.value = "Sale posted successfully: $response"
+                    _apiStatus.value = "Sale posted successfully: $response"
                 } else {
-                    _scaleStatus.value = "Failed to post sale"
+                    _apiStatus.value = "Failed to post sale"
                 }
             } catch (e: Exception) {
-                _scaleStatus.value = "Error posting sale: ${e.message}"
+                _apiStatus.value = "Error posting sale: ${e.message}"
             }
         }
     }
 
+
+
     fun updateCurrentDeliSale(currentDeliSale: DeliSale): DeliSale {
         Log.d("ViewModel", "Updating Current DeliSale: $currentDeliSale")
         var totalPrice = 0.0
-
         // Iterate over the products and sum their prices with null assertion
-        for (product in currentDeliSale.deliProduct.products) {
-            totalPrice += product.productPrice!! // Null assertion
-        }
 
         // Add deliProduct's price
-        totalPrice += currentDeliSale.deliProduct.deliProduct?.productPrice!!
+        totalPrice += currentDeliSale.deliProduct.calculateTotalPrice()
 
         // Calculate waste per value
-        val wastePerValue = currentDeliSale.differenceWeight * totalPrice
+        val wastePerValue = (currentDeliSale.differenceWeight * totalPrice)/1000
 
         val updatedSale = DeliSale(
             employeeId = currentDeliSale.employeeId,
             deliProduct = currentDeliSale.deliProduct,
-            salePrice = currentDeliSale.deliProduct.calculateTotalPrice(),
+            salePrice = totalPrice,
             saleWeight = currentDeliSale.saleWeight,
             wastePerSale = 0.0,
             wastePerSaleValue = wastePerValue,
@@ -339,6 +194,10 @@ class ProductsViewModel @Inject constructor(
 
     fun getEmployeeId(): String? {
         return session.getUser()?.employeeId
+    }
+
+    suspend fun getProductByName(productName: String): Product?{
+        return getProductsUseCase.executeProductByName(productName)
     }
 
 }

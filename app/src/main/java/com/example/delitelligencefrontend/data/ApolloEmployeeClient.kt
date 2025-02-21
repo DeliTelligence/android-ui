@@ -7,6 +7,7 @@ package com.example.delitelligencefrontend.data
 
 import com.apollographql.apollo.ApolloClient
 import com.example.delitelligence.CreateEmployeeMutation
+import com.example.delitelligence.DeleteEmployeeMutation
 import com.example.delitelligence.EmployeeLogInQuery
 import com.example.delitelligence.GetAllProductsQuery
 import com.example.delitelligence.GetEmployeesQuery
@@ -50,6 +51,19 @@ class ApolloEmployeeClient(
             null
         }
     }
+
+    override suspend fun deleteEmployee(id: String): String? {
+        return try {
+            val response = apolloClient
+                .mutation(DeleteEmployeeMutation(id))
+                .execute()
+
+            // Assuming response.data?.createSale returns a string
+            response.data?.deleteEmployee
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }    }
 
     override suspend fun getEmployees(): List<EmployeeFetch> {
         return apolloClient

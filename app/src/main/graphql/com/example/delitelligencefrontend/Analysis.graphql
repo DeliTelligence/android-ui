@@ -1,0 +1,15 @@
+query GetSalesByDate($startDate: String!, $endDate: String!) {
+    getAllSalesByDate(startDate: $startDate, endDate: $endDate) {
+        saleCategoryTime
+        salePercentage
+        saleAmount
+    }
+}
+
+query GetDailySalesTotal($date: String!) {
+    dailySalesTotal(date: $date)
+}
+
+query GetTotalSales{
+    totalSales
+}

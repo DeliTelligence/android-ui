@@ -24,21 +24,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.delitelligencefrontend.enumformodel.PortionType
 import com.example.delitelligencefrontend.enumformodel.SaleType
 import com.example.delitelligencefrontend.model.DeliProduct
 import com.example.delitelligencefrontend.model.DeliSale
 import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.presentation.viewmodel.ProductsViewModel
-import java.util.UUID
-import kotlin.math.abs
+
 
 @Composable
 fun HotFoodToGoScreen(
@@ -46,8 +43,11 @@ fun HotFoodToGoScreen(
 ) {
     val hotFoodProducts by productsViewModel.hotFoodProductsFilling.collectAsState()
     val breakfastProducts by productsViewModel.breakfastProducts.collectAsState()
+    val fillingProducts by productsViewModel.fillingProducts.collectAsState()
+    val mainFillingProducts by productsViewModel.mainFillingProducts.collectAsState()
 
-    val allProducts = hotFoodProducts + breakfastProducts  // Join the two lists
+    val hotProducts = hotFoodProducts + breakfastProducts
+    val coldProducts = mainFillingProducts + fillingProducts
 
     var currentDeliSale by remember { mutableStateOf<DeliSale?>(null) }
     var currentDeliProduct by remember { mutableStateOf<DeliProduct?>(null) }
@@ -56,32 +56,63 @@ fun HotFoodToGoScreen(
     LaunchedEffect(Unit) {
         productsViewModel.fetchAllProducts()
     }
+
+    LaunchedEffect(Unit) {
+        val deliProduct: Product? = productsViewModel.getProductByName("Deli Bag")
+        deliProduct?.let { product ->
+            currentDeliProduct = DeliProduct(
+                deliProduct = product,
+                products = emptyList(),
+                combinedWeight = 0.0, // This will be calculated later
+                portionType = PortionType.QUANTITY
+            )
+        }
+    }
+
+
     LaunchedEffect(currentDeliProduct) {
-        if (currentDeliProduct != null) {
-            // Create a new DeliSale or update the existing one with new product
+        currentDeliProduct?.let {
             currentDeliSale = DeliSale(
                 productsViewModel.getEmployeeId().toString(),
-                deliProduct = currentDeliProduct!!,
-                salePrice = currentDeliProduct!!.calculateTotalPrice(),
-                saleWeight = 0.0, // Placeholder, you will set it when fetching weight data
+                deliProduct = it,
+                salePrice = it.calculateTotalPrice(),
+                saleWeight = 0.0,
                 wastePerSale = 0.0,
                 wastePerSaleValue = 0.0,
                 differenceWeight = 0.0,
-                saleType = SaleType.HOT_FOOD, // Adjust as per your logic
-                quantity = currentDeliProduct!!.totalQuantity(), // Assuming 1 for simplicity
-                handMade = true // Set based on your logic
+                saleType = SaleType.HOT_FOOD,
+                quantity = it.totalQuantity(),
+                handMade = true
             )
-        } else {
-            currentDeliSale = null
         }
     }
 
     Row(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // Left side: Combined product list in a vertical scrollable grid
-        Column(modifier = Modifier.weight(1f)) {
+        // Left quadrant: Show Hot Products and Cold Products as separate grids
+        Column(modifier = Modifier.weight(0.6f).fillMaxHeight()) {
+            // Hot Food section
             ProductGridQuadrant(
-                title = "Hot Food and Breakfast Food",
-                products = allProducts,
+                title = "Hot Food",
+                products = hotProducts,
+                selectedProduct = currentDeliProduct?.products?.firstOrNull(),
+                onProductSelected = { product ->
+                    currentDeliProduct = currentDeliProduct?.copy(
+                        products = currentDeliProduct!!.products + product,
+                    ) ?: DeliProduct(
+                        deliProduct = product,
+                        products = listOf(product),
+                        combinedWeight = 0.0,
+                        portionType = PortionType.QUANTITY
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Cold Products section
+            ProductGridQuadrant(
+                title = "Cold Products to Take",
+                products = coldProducts,
                 selectedProduct = currentDeliProduct?.products?.firstOrNull(),
                 onProductSelected = { product ->
                     currentDeliProduct = currentDeliProduct?.copy(
@@ -98,9 +129,9 @@ fun HotFoodToGoScreen(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Right side (Finish Product button and Total Price)
+        // Right quadrant: Controls like the finish action
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(0.4f).fillMaxHeight(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -147,8 +178,10 @@ fun ProductGridQuadrant(
         )
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),  // 3 items per row
-            modifier = Modifier.fillMaxWidth(),
+            columns = GridCells.Fixed(3),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp), // Control height to prevent infinite constraints
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
         ) {
             items(products) { product ->
@@ -219,4 +252,3 @@ fun HotFoodProductCard(
         }
     }
 }
-

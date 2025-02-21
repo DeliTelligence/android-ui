@@ -7,6 +7,10 @@ mutation UpdateEmployee($input: EmployeeInputUpdateDto!){
     editEmployee(input: $input)
 }
 
+mutation DeleteEmployee($id: ID!){
+    deleteEmployee(id: $id)
+}
+
 query EmployeeLogIn($password: String!){
     employeeLogin(password: $password){
         id
@@ -27,7 +31,8 @@ query GetEmployees{
         employeeTitle
         hireDate
         employeePassword
-
+        totalTransactions
+        totalWastePercentage
     }
 }
 

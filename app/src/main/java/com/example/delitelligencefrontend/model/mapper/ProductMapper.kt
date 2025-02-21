@@ -7,10 +7,11 @@ All code here is adapted from the video*/
 package com.example.delitelligencefrontend.model.mapper
 
 import com.example.delitelligence.GetAllProductsQuery
+import com.example.delitelligence.GetAllStandardWeightsQuery
 import com.example.delitelligence.GetProductByIDQuery
+import com.example.delitelligence.GetProductByNameQuery
 import com.example.delitelligence.GetProductsByTypeQuery
-import com.example.delitelligence.type.EmployeePosition
-import com.example.delitelligencefrontend.enumformodel.EmployeeTitle
+
 import com.example.delitelligencefrontend.enumformodel.ProductType
 import com.example.delitelligencefrontend.enumformodel.StandardType
 import com.example.delitelligencefrontend.model.Product
@@ -28,6 +29,18 @@ fun GetProductByIDQuery.GetProductById.toProduct(): Product {
         id = this.id,
         productName = this.productName,
         standardWeightProducts = null, // Adjust if available in the response
+        productPrice = this.productPrice,
+        productImageDto = this.productImageDto,
+        productDescription = this.productDescription,
+        productType = this.productType?.toProductType()
+    )
+}
+
+fun GetProductByNameQuery.GetProductByName.toProduct(): Product {
+    return Product(
+        id = this.id,
+        productName = this.productName,
+        standardWeightProducts = this.standardWeightProducts.safeMap { it.toStandardWeightProduct() }, // Adjust if available in the response
         productPrice = this.productPrice,
         productImageDto = this.productImageDto,
         productDescription = this.productDescription,
@@ -54,7 +67,7 @@ fun GetAllProductsQuery.GetAllProduct.toProduct(): Product {
         id = this.id,
         productName = this.productName,
         standardWeightProducts = this.standardWeightProducts.safeMap { it.toStandardWeightProduct() },
-        productPrice = this.productPrice?.toDouble(),
+        productPrice = this.productPrice,
         productImageDto = this.productImageDto,
         productDescription = this.productDescription,
         productType = this.productType?.toProductType()
@@ -69,8 +82,29 @@ fun GetAllProductsQuery.StandardWeightProduct.toStandardWeightProduct(): Standar
     )
 }
 
+fun GetProductByNameQuery.StandardWeightProduct.toStandardWeightProduct(): StandardWeightProduct {
+    return StandardWeightProduct(
+        standardWeight = this.standardWeight?.toStandardWeight(),
+        standardWeightValue = this.standardWeightValue?.toFloat()
+    )
+}
+
 // Extension function to map the StandardWeight response to model
 fun GetAllProductsQuery.StandardWeight.toStandardWeight(): StandardWeight {
+    return StandardWeight(
+        standardWeightId = this.standardWeightId,
+        standardType = this.standardType?.toStandardType()
+    )
+}
+
+fun GetAllStandardWeightsQuery.GetAllStandardWeight.toStandardWeight(): StandardWeight {
+    return StandardWeight(
+        standardWeightId = this.standardWeightId,
+        standardType = this.standardType?.toStandardType()
+    )
+}
+
+fun GetProductByNameQuery.StandardWeight.toStandardWeight(): StandardWeight {
     return StandardWeight(
         standardWeightId = this.standardWeightId,
         standardType = this.standardType?.toStandardType()
@@ -95,8 +129,10 @@ fun com.example.delitelligence.type.ProductType.toProductType(): ProductType {
         com.example.delitelligence.type.ProductType.MADE_FOOD_HOT -> ProductType.MADE_FOOD_HOT
         com.example.delitelligence.type.ProductType.MAIN_FILLING_FOOD -> ProductType.MAIN_FILLING_FOOD
         com.example.delitelligence.type.ProductType.MADE_FOOD_COLD -> ProductType.MADE_FOOD_COLD
+        com.example.delitelligence.type.ProductType.SALAD -> ProductType.SALAD
+        com.example.delitelligence.type.ProductType.TO_GO_BAG -> ProductType.TO_GO_BAG
         com.example.delitelligence.type.ProductType.UNKNOWN__ -> ProductType.UNKNOWN
-
+        com.example.delitelligence.type.ProductType.UNKNOWN -> ProductType.UNKNOWN
     }
 }
 

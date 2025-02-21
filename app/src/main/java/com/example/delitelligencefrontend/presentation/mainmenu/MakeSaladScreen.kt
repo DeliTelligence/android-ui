@@ -36,81 +36,103 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.delitelligencefrontend.enumformodel.PortionType
+import com.example.delitelligencefrontend.enumformodel.ProductType
 import com.example.delitelligencefrontend.enumformodel.SaleType
+import com.example.delitelligencefrontend.enumformodel.StandardType
 import com.example.delitelligencefrontend.model.DeliProduct
 import com.example.delitelligencefrontend.model.DeliSale
 import com.example.delitelligencefrontend.model.Product
 import com.example.delitelligencefrontend.presentation.viewmodel.ProductsViewModel
+import com.example.delitelligencefrontend.presentation.viewmodel.ScalesViewModel
 import java.util.UUID
 import kotlin.math.abs
 
 @Composable
 fun MakeSaladScreen(
-    productsViewModel: ProductsViewModel = hiltViewModel()
+    productsViewModel: ProductsViewModel = hiltViewModel(),
+    scalesViewModel: ScalesViewModel = hiltViewModel()
 ) {
     val hotFoodProducts by productsViewModel.hotFoodProductsFilling.collectAsState()
     val mainFillingProducts by productsViewModel.mainFillingProducts.collectAsState()
     val coldFoodProducts by productsViewModel.fillingProducts.collectAsState()
+    val saladProduct by productsViewModel.saladProduct.collectAsState()
 
-    val allSaladProducts = hotFoodProducts + mainFillingProducts + coldFoodProducts  // Join the three lists
+    val proteinProducts = mainFillingProducts + hotFoodProducts
+    val allSaladProducts = proteinProducts + coldFoodProducts + saladProduct
 
-    var currentDeliSale by remember { mutableStateOf<DeliSale?>(null) }
     var currentDeliProduct by remember { mutableStateOf<DeliProduct?>(null) }
-    var finishedDeliProducts by remember { mutableStateOf<List<DeliProduct>>(emptyList()) }
+    var currentDeliSale by remember { mutableStateOf<DeliSale?>(null) }
 
     LaunchedEffect(Unit) {
         productsViewModel.fetchAllProducts()
     }
 
+    LaunchedEffect(Unit) {
+        val deliProduct: Product? = productsViewModel.getProductByName("Salad")
+        deliProduct?.let { product ->
+            currentDeliProduct = DeliProduct(
+                deliProduct = product,
+                products = emptyList(),
+                combinedWeight = 0.0, // This will be calculated later
+                portionType = PortionType.SALAD
+            )
+        }
+    }
+
     LaunchedEffect(currentDeliProduct) {
-        if (currentDeliProduct != null) {
+        currentDeliProduct?.let { product ->
             currentDeliSale = DeliSale(
                 productsViewModel.getEmployeeId().toString(),
-                deliProduct = currentDeliProduct!!,
-                salePrice = currentDeliProduct!!.calculateTotalPrice(),
-                saleWeight = 0.0, // Placeholder, you will set it when fetching weight data
+                deliProduct = product,
+                salePrice = product.calculateTotalPrice(),
+                saleWeight = 0.0, // This will be set when weighing
                 wastePerSale = 0.0,
                 wastePerSaleValue = 0.0,
                 differenceWeight = 0.0,
-                saleType = SaleType.HOT_FOOD, // Adjust as per your logic
-                quantity = currentDeliProduct!!.totalQuantity(), // Assuming 1 for simplicity
-                handMade = true // Set based on your logic
+                saleType = SaleType.HOT_FOOD,
+                quantity = product.totalQuantity(),
+                handMade = true
             )
-        } else {
-            currentDeliSale = null
         }
     }
 
     Row(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // Left side: Combined product list in a vertical scrollable grid
-        Column(modifier = Modifier
-            .weight(0.6f)
-            .fillMaxHeight()
-        ) {
+        // Left quadrant: Show Proteins and Cold Food sections one on top of the other
+        Column(modifier = Modifier.weight(0.6f).fillMaxHeight()) {
+            // Proteins section
             SaladProductGrid(
-                title = "Salad Fillings",
-                products = allSaladProducts,
-                selectedProduct = currentDeliProduct?.products?.firstOrNull(),
+                title = "Proteins",
+                products = proteinProducts,
+                selectedProducts = currentDeliProduct?.products ?: emptyList(),
                 onProductSelected = { product ->
-                    currentDeliProduct = currentDeliProduct?.copy(
-                        products = currentDeliProduct!!.products + product,
-                    ) ?: DeliProduct(
-                        deliProduct = productsViewModel.allProducts.value.firstOrNull { it.id == "cdc8ebe2-fd1b-4cd3-80dd-cbc3e9d1fec5" },
-                        products = listOf(product),
-                        combinedWeight = 0.0,
-                        portionType = PortionType.SALAD
-                    )
+                    currentDeliProduct = currentDeliProduct?.let { current ->
+                        val newProducts = current.products + product
+                        current.copy(products = newProducts)
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Cold Food section
+            SaladProductGrid(
+                title = "Cold Food",
+                products = coldFoodProducts,
+                selectedProducts = currentDeliProduct?.products ?: emptyList(),
+                onProductSelected = { product ->
+                    currentDeliProduct = currentDeliProduct?.let { current ->
+                        val newProducts = current.products + product
+                        current.copy(products = newProducts)
+                    }
                 }
             )
         }
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Right side: Scale interaction and Finish Product button
+        // Right quadrant: Controls like scales and finish action
         Column(
-            modifier = Modifier
-                .weight(0.4f)
-                .fillMaxHeight(),
+            modifier = Modifier.weight(0.4f).fillMaxHeight(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -118,30 +140,33 @@ fun MakeSaladScreen(
                 currentDeliProduct = currentDeliProduct,
                 currentDeliSale = currentDeliSale,
                 productsViewModel = productsViewModel,
+                scalesViewModel = scalesViewModel,
                 onFinishProduct = {
-                    currentDeliProduct?.let {
-                        finishedDeliProducts = finishedDeliProducts + it
-                        currentDeliProduct = null
-                        currentDeliSale = null
+                    // Handle finishing the product
+                    currentDeliSale?.let { sale ->
+                        val updatedSale = productsViewModel.updateCurrentDeliSale(sale)
+                        productsViewModel.postDeliSale(updatedSale)
                     }
+                    currentDeliProduct = null
+                    currentDeliSale = null
                 }
             )
         }
     }
 }
-
 @Composable
 fun SaladRightQuadrant(
     currentDeliProduct: DeliProduct?,
     currentDeliSale: DeliSale?,
     productsViewModel: ProductsViewModel = hiltViewModel(),
+    scalesViewModel: ScalesViewModel = hiltViewModel(),
     onFinishProduct: () -> Unit
 ) {
-    val displayedWeight by productsViewModel.displayedValue.collectAsState()
-    val isScaleConnected by productsViewModel.isScaleConnected.collectAsState()
-    val isWeighing by productsViewModel.isWeighing.collectAsState()
-    val scaleStatus by productsViewModel.scaleStatus.collectAsState()
-    val isWeightErrorSignificant by productsViewModel.isWeightErrorSignificant.collectAsState()
+    val displayedWeight by scalesViewModel.displayedValue.collectAsState()
+    val isScaleConnected by scalesViewModel.isScaleConnected.collectAsState()
+    val isWeighing by scalesViewModel.isWeighing.collectAsState()
+    val scaleStatus by scalesViewModel.scaleStatus.collectAsState()
+    val isWeightErrorSignificant by scalesViewModel.isWeightErrorSignificant.collectAsState()
 
     Column(
         modifier = Modifier
@@ -153,14 +178,14 @@ fun SaladRightQuadrant(
         // Weight display circle
         Box(
             modifier = Modifier
-                .size(250.dp)  // Adjusted size
+                .size(250.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ) {
             Box(
                 modifier = Modifier
-                    .size(230.dp)  // Adjusted size
+                    .size(230.dp)
                     .clip(CircleShape)
                     .background(Color.White),
                 contentAlignment = Alignment.Center
@@ -179,7 +204,7 @@ fun SaladRightQuadrant(
                 }
                 Text(
                     text = text,
-                    style = MaterialTheme.typography.displayMedium,  // Adjusted text size
+                    style = MaterialTheme.typography.displayMedium,
                     color = color
                 )
             }
@@ -191,42 +216,40 @@ fun SaladRightQuadrant(
         // Weigh button
         Button(
             onClick = {
-                currentDeliProduct?.let { productsViewModel.fetchWeightData(it) }
+                currentDeliProduct?.let { scalesViewModel.fetchWeightData(it, StandardType.SALAD) }
             },
             enabled = isScaleConnected && !isWeighing && currentDeliProduct != null,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)  // Adjusted height
+                .height(48.dp)
         ) {
             Text(if (isWeighing) "Weighing..." else "Weigh")
         }
 
         // TARE button
         Button(
-            onClick = { productsViewModel.tareScale() },
+            onClick = { scalesViewModel.tareScale() },
             enabled = isScaleConnected,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)  // Adjusted height
+                .height(48.dp)
         ) {
             Text("TARE")
         }
 
         // Price display
         Text(
-            text = "Price: $${String.format("%.2f", currentDeliProduct?.calculateTotalPrice() ?: 0f)}",
+            text = "Price: €${String.format("%.2f", currentDeliProduct?.calculateTotalPrice() ?: 0f)}",
             style = MaterialTheme.typography.titleLarge
         )
 
-        // Finish Product button, shown once weighing is done
+        // Finish Product button
         Button(
             onClick = {
                 Log.d("FinishButton", "Button Clicked")
                 currentDeliSale?.let {
                     Log.d("FinishButton", "Current DeliSale is not null: $it")
                     val updatedSale = productsViewModel.updateCurrentDeliSale(it)
-                    Log.d("FinishButton", "Updated DeliSale: $updatedSale")
-                    productsViewModel.updateCurrentDeliSale(updatedSale)
                     productsViewModel.postDeliSale(updatedSale)
                     onFinishProduct()
                 } ?: run {
@@ -245,12 +268,11 @@ fun SaladRightQuadrant(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SaladProductGrid(
     title: String,
     products: List<Product>,
-    selectedProduct: Product?,
+    selectedProducts: List<Product>,
     onProductSelected: (Product) -> Unit
 ) {
     Column(
@@ -264,15 +286,17 @@ fun SaladProductGrid(
         )
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),  // 3 items per row
-            modifier = Modifier.fillMaxWidth(),
+            columns = GridCells.Fixed(3),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
         ) {
             items(products) { product ->
                 SaladProductCard(
                     product = product,
                     modifier = Modifier.padding(8.dp),
-                    isSelected = product == selectedProduct,
+                    isSelected = product in selectedProducts,
                     onProductSelected = onProductSelected
                 )
             }

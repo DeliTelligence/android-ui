@@ -94,6 +94,7 @@ dependencies {
 
     implementation(libs.coil.compose)  // Add Coil Compose for image loading
 
+    implementation (libs.mpandroidchart)
 
     implementation(libs.accompanist.permissions)
 

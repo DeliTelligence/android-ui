@@ -25,6 +25,7 @@ foundationLayoutAndroid = "1.7.4"
 uiTestAndroid = "1.8.0-alpha06"
 mapstructVersion = "1.5.2.Final"
 animationCoreLint = "1.8.0-beta01"
+mpandroidchart = "v3.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,6 +63,7 @@ androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-andr
 mapstruct = { group = "org.mapstruct", name = "mapstruct", version.ref = "mapstructVersion" }
 mapstruct-processor = { group = "org.mapstruct", name = "mapstruct-processor", version.ref = "mapstructVersion" }
 androidx-animation-core-lint = { group = "androidx.compose.animation", name = "animation-core-lint", version.ref = "animationCoreLint" }
+mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -120,4 +120,16 @@ object AppModule {
     fun provideSession(@ApplicationContext context: Context): Session {
         return Session(context)
     }
+
+    @Provides
+    @Singleton
+    fun provideAnalysisClient(apolloClient: ApolloClient): AnalysisClient {
+        return ApolloAnalysisClient(apolloClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAnalysisUseCase(analysisClient: AnalysisClient): AnalysisUseCase {
+        return AnalysisUseCase(analysisClient)
+    }
 }

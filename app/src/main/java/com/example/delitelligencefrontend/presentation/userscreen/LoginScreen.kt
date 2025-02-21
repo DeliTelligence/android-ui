@@ -1,14 +1,18 @@
 package com.example.delitelligencefrontend.presentation.userscreen
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.delitelligencefrontend.R
 import com.example.delitelligencefrontend.model.Employee
 import com.example.delitelligencefrontend.presentation.viewmodel.LoginViewModel
 
@@ -26,9 +30,25 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Make the Box bigger to increase the image size
+        Box(
+            modifier = Modifier
+                .size(300.dp) // Increased size to 300dp, adjust as needed
+                .background(MaterialTheme.colorScheme.background) // Adjusts the background, can be `Color.White` if preferred
+                .padding(bottom = 8.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.delitelligencelogo),
+                contentDescription = "DeliTelligence Logo",
+                modifier = Modifier.fillMaxSize() // Ensures the image fills the entire size of the Box
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         TextField(
             value = password,
             onValueChange = { password = it },

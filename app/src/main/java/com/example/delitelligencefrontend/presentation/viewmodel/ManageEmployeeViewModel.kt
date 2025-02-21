@@ -38,7 +38,7 @@ class ManageEmployeeViewModel @Inject constructor(
         }
     }
 
-    fun searchProducts(query: String) {
+    fun searchEmployees(query: String) {
         _searchQuery.value = query
         viewModelScope.launch {
             _employees.value = if (query.isEmpty()) {
@@ -77,5 +77,19 @@ class ManageEmployeeViewModel @Inject constructor(
                 println("Error Updating Employee: ${e.message}")
             }
         }
+    }
+
+    fun deleteEmployee(id: String) {
+        viewModelScope.launch {
+            // Handle product deletion and refresh the list
+            // Actual deletion logic should be implemented here
+            try {
+                val response = employeeUseCase.executeDelete(id)
+                // Handle response (e.g., update UI, show a success message, etc.)
+                println("Delete Employee Response: $response")
+            } catch (e: Exception) {
+                // Handle error (e.g., show an error message)
+                println("Error Employee: ${e.message}")
+            }        }
     }
 }

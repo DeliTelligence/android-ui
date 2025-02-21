@@ -7,6 +7,7 @@ import com.example.delitelligencefrontend.domain.ProductsUseCase
 import com.example.delitelligencefrontend.model.EmployeeCreate
 import com.example.delitelligencefrontend.model.EmployeeUpdate
 import com.example.delitelligencefrontend.model.Product
+import com.example.delitelligencefrontend.model.StandardWeight
 import com.example.delitelligencefrontend.model.mapper.PostEmployeeMapper
 import com.example.delitelligencefrontend.model.mapper.ProductMapperStruct
 import com.example.delitelligencefrontend.model.mapper.ProductMutationMapper
@@ -15,6 +16,7 @@ import com.example.delitelligencefrontend.modeldto.product.ProductUpdate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +31,12 @@ class ManageProductViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
+    private val _standardWeights = MutableStateFlow<List<StandardWeight>>(emptyList())
+    val standardWeights: StateFlow<List<StandardWeight>> = _standardWeights.asStateFlow()
+
     init {
         fetchAllProducts()
+        fetchStandardWeights()
     }
 
     fun fetchAllProducts() {
@@ -57,20 +63,21 @@ class ManageProductViewModel @Inject constructor(
             try {
                 val inputDto = ProductMutationMapper.INSTANCE.toProductCreateDto(productToCreate)
                 val response = productsUseCase.execute(inputDto)
-                // Handle response (e.g., update UI, show a success message, etc.)
                 println("Create Product Response: $response")
             } catch (e: Exception) {
-                // Handle error (e.g., show an error message)
-                println("Error Product Employee: ${e.message}")
+                println("Error Creating Product: ${e.message}")
             }
         }
     }
 
     fun deleteProduct(product: Product) {
         viewModelScope.launch {
-            // Handle product deletion and refresh the list
-            // Actual deletion logic should be implemented here
-            fetchAllProducts()
+            try {
+                val response = product.id?.let { productsUseCase.executeDelete(it) }
+                println("Delete Product Response: $response")
+            } catch (e: Exception) {
+                println("Error Deleting Product: ${e.message}")
+            }
         }
     }
 
@@ -79,11 +86,20 @@ class ManageProductViewModel @Inject constructor(
             try {
                 val inputDto = ProductMutationMapper.INSTANCE.toProductUpdateDto(productToUpdate)
                 val response = productsUseCase.execute(inputDto)
-                // Handle response (e.g., update UI, show a success message, etc.)
                 println("Update Product Response: $response")
             } catch (e: Exception) {
-                // Handle error (e.g., show an error message)
                 println("Error Updating Product: ${e.message}")
+            }
+        }
+    }
+
+    fun fetchStandardWeights() {
+        viewModelScope.launch {
+            try {
+                val weights = productsUseCase.executeGetStandardWeights()
+                _standardWeights.value = weights
+            } catch (e: Exception) {
+                println("Error Fetching Standard Weights: ${e.message}")
             }
         }
     }

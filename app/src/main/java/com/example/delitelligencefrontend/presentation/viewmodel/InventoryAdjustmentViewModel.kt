@@ -59,6 +59,7 @@ class InventoryAdjustmentViewModel @Inject constructor(
 
     private val _supplierName = MutableStateFlow("")
     private val _productName = MutableStateFlow("")
+    private val _selectedProduct = MutableStateFlow<Product?>(null)
     private val _orderWeight = MutableStateFlow(0.0)
     private val _costPerBox = MutableStateFlow(0.0)
     private val _adjustmentType = MutableStateFlow(AdjustmentType.DELIVERY) // Set default to DELIVERY
@@ -66,6 +67,8 @@ class InventoryAdjustmentViewModel @Inject constructor(
 
     private val _suppliers = MutableStateFlow<List<Supplier>>(emptyList())
     private val _products = MutableStateFlow<List<Product>>(emptyList())
+    val selectedProduct: StateFlow<Product?> = _selectedProduct
+
 
     val supplierName: StateFlow<String> = _supplierName
     val productName: StateFlow<String> = _productName
@@ -94,6 +97,13 @@ class InventoryAdjustmentViewModel @Inject constructor(
             updateCostForWaste()
         }
     }
+    fun updateSelectedProduct(product: Product) {
+        _selectedProduct.value = product
+        updateProductName(product.productName ?: "Unknown")
+        if (_adjustmentType.value == AdjustmentType.WASTE) {
+            updateCostForWaste()
+        }
+    }
 
     fun updateOrderWeight(weight: Double) {
         _orderWeight.value = weight
@@ -102,6 +112,7 @@ class InventoryAdjustmentViewModel @Inject constructor(
             updateCostForWaste()
         }
     }
+
 
     fun updateCostPerBox(cost: Double) {
         _costPerBox.value = cost
