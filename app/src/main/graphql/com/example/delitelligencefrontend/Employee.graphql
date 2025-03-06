@@ -17,6 +17,7 @@ query EmployeeLogIn($password: String!){
         employeeFirstName
         employeeLastName
         employeeLoggedIn
+        employeeEmail
         employeeTitle
         hireDate
     }
@@ -29,6 +30,7 @@ query GetEmployees{
         employeeLastName
         employeeLoggedIn
         employeeTitle
+        employeeEmail
         hireDate
         employeePassword
         totalTransactions

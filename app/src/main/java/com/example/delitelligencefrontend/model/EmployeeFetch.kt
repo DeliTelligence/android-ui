@@ -8,6 +8,7 @@ data class EmployeeFetch(
     val employeeLastName: String,
     val employeeLoggedIn: Boolean,
     val employeeTitle: EmployeeTitle,
+    val employeeEmail: String,
     val hireDate: String,
     val employeePassword: String,
     val totalTransactions: Int,

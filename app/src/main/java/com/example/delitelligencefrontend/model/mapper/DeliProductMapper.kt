@@ -19,7 +19,7 @@ interface DeliProductMapper {
 
     @Mapping(target = "productInputDtos", source = "products")
     @Mapping(target = "productInputDto", source = "deliProduct")
-    @Mapping(target = "combinedWeight", source = "combinedWeight")
+    @Mapping(target = "combinedWeight", expression = "java(deliProduct.totalCombinedWeight(com.example.delitelligencefrontend.enumformodel.StandardType.FILLING))")
     @Mapping(target = "portionType", source = "portionType")
     fun toDeliProductInput(deliProduct: DeliProduct): DeliProductInput
 }

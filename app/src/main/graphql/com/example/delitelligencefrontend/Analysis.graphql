@@ -13,3 +13,60 @@ query GetDailySalesTotal($date: String!) {
 query GetTotalSales{
     totalSales
 }
+
+query GetQuantitySales($startDate: String!, $endDate: String!) {
+    getSalesByQuantity(startDate: $startDate, endDate: $endDate) {
+        salesData
+        quantityRepresented
+        percentage
+    }
+}
+
+query GetAllSalesByType($startDate: String!, $endDate: String!){
+    getSalesByType(startDate: $startDate, endDate: $endDate) {
+        saleAmountBySaleType
+        salePercentageBySaleType
+        saleType
+    }
+}
+query GetAllSalesByHandMadeOrNot($startDate: String!, $endDate: String!){
+    getHandMadeOrNotSalesData(startDate: $startDate, endDate: $endDate) {
+        handMadeDescription
+        saleAmountHandMade
+        saleHandMadeByPercentage
+    }
+}
+mutation PostSendSalesReport($to: String!, $startDate: String!, $endDate: String!){
+    sendReport(to: $to, startDate: $startDate, endDate: $endDate)
+}
+
+query GetSalesForecast{
+    getSalesForecast{
+        monthOfSales
+        salesTotal
+    }
+
+}
+
+query GetTotalWeight{
+    getTotalWeight
+}
+
+query GetTotalInventoryValue{
+    getTotalInventoryValue
+}
+
+query GetAdjustmentData{
+    getAdjustmentData {
+        adjustmentAmount
+        adjustmentPercentage
+        adjustmentType
+    }
+}
+query GetInventoryLevels{
+    getInventoryLevels {
+        productName
+        inventoryValue
+        inventoryWeight
+    }
+}

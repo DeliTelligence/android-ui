@@ -3,7 +3,7 @@ enum AdjustmentType {
 
   DELIVERY
 
-  OTHER
+  USED
 }
 
 type DailySaleDto {
@@ -66,6 +66,8 @@ type EmployeeFetchDto {
 
   employeeLoggedIn: Boolean
 
+  employeeEmail: String
+
   hireDate: String
 
   employeePassword: String
@@ -111,6 +113,28 @@ enum EmployeePosition {
   ACCOUNTANT
 }
 
+type GraphDataDto {
+  monthOfSales: String!
+
+  salesTotal: Float!
+}
+
+type HandMadeSaleDto {
+  handMadeDescription: String!
+
+  saleHandMadeByPercentage: Float!
+
+  saleAmountHandMade: Float!
+}
+
+type InventoryAdjustmentAnalysisDto {
+  adjustmentPercentage: Float!
+
+  adjustmentType: String!
+
+  adjustmentAmount: Float!
+}
+
 input InventoryAdjustmentInputDto {
   supplierName: String!
 
@@ -139,6 +163,14 @@ type InventoryFetchDto {
   fillingPortion: Float
 }
 
+type InventoryLevelDto {
+  productName: String!
+
+  inventoryValue: Float!
+
+  inventoryWeight: Float!
+}
+
 type Mutation {
   createEmployee(input: EmployeeInputCreateDto): String
 
@@ -156,7 +188,9 @@ type Mutation {
 
   editProduct(input: ProductUpdateDto): String
 
-  createTestData: String!
+  createTestData(year: Int): String!
+
+  sendReport(to: String!, startDate: String!, endDate: String!): String!
 }
 
 enum PortionType {
@@ -257,6 +291,14 @@ input ProductUpdateDto {
   productType: ProductType!
 }
 
+type QuantitySaleSplitDto {
+  salesData: Float!
+
+  quantityRepresented: Int!
+
+  percentage: Float!
+}
+
 type Query {
   getAllEmployees: [EmployeeFetchDto]
 
@@ -283,6 +325,26 @@ type Query {
   dailySalesTotal(date: String!): Float
 
   totalSales: Float!
+
+  getSalesByQuantity(startDate: String, endDate: String): [QuantitySaleSplitDto]
+
+  getSalesByType(startDate: String, endDate: String): [SalesByTypeDto]
+
+  getHandMadeOrNotSalesData(startDate: String, endDate: String): [HandMadeSaleDto]
+
+  getTrainingData: [TrainingData]
+
+  getDataForModel(startDate: String, endDate: String): [TrainingData]
+
+  getSalesForecast: [GraphDataDto]!
+
+  getTotalWeight: Float!
+
+  getAdjustmentData: [InventoryAdjustmentAnalysisDto]
+
+  getTotalInventoryValue: Float
+
+  getInventoryLevels: [InventoryLevelDto]
 }
 
 enum SaleType {
@@ -291,6 +353,16 @@ enum SaleType {
   HOT_FOOD
 
   SALAD
+
+  UNKNOWN
+}
+
+type SalesByTypeDto {
+  saleType: SaleType!
+
+  salePercentageBySaleType: Float!
+
+  saleAmountBySaleType: Float!
 }
 
 enum StandardType {
@@ -359,6 +431,12 @@ type SupplierFetchDto {
   supplierWebsite: String
 
   supplierNumber: String
+}
+
+type TrainingData {
+  salePrice: Float!
+
+  saleDate: String!
 }
 
 type __Directive {

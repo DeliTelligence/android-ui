@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.delitelligencefrontend"
-        minSdk = 25
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -120,4 +120,3 @@ dependencies {
     implementation(libs.mapstruct)
     kapt(libs.mapstruct.processor) // Use kapt for Mapstruct processor
 }
-

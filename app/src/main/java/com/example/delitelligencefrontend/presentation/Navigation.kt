@@ -3,6 +3,8 @@
 
 package com.example.delitelligencefrontend.presentation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,6 +15,7 @@ import com.example.delitelligencefrontend.presentation.inventory.AddToInventoryS
 import com.example.delitelligencefrontend.presentation.inventory.CheckInventoryScreen
 import com.example.delitelligencefrontend.presentation.inventory.InventoryScreen
 import com.example.delitelligencefrontend.presentation.mainmenu.*
+import com.example.delitelligencefrontend.presentation.managerscreen.InventoryDashboardScreen
 import com.example.delitelligencefrontend.presentation.managerscreen.ManageEmployeeScreen
 import com.example.delitelligencefrontend.presentation.managerscreen.ManageProductScreen
 import com.example.delitelligencefrontend.presentation.managerscreen.ManagerScreen
@@ -21,6 +24,7 @@ import com.example.delitelligencefrontend.presentation.managerscreen.ReportDashb
 import com.example.delitelligencefrontend.presentation.userscreen.LoginScreen
 import com.example.delitelligencefrontend.presentation.viewmodel.ScalesViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Navigation(session: Session, systemStartViewModel: ScalesViewModel) {
     val navController = rememberNavController()
@@ -81,7 +85,12 @@ fun Navigation(session: Session, systemStartViewModel: ScalesViewModel) {
         composable(Screen.ReportDashboardScreen.route) {
             BaseScreen(navController, session) {
                 // Replace with your InventoryScreen when it's implemented
-                ReportDashboardScreen(navController = navController)
+                ReportDashboardScreen(navController)
+            }
+        }
+        composable(Screen.InventoryDashboardScreen.route) {
+            BaseScreen(navController, session) {
+                InventoryDashboardScreen(navController)
             }
         }
         composable(Screen.ManageProductScreen.route) {
@@ -144,5 +153,6 @@ sealed class Screen(val route: String) {
     object ManageEmployeeScreen : Screen("manage_employee_screen")
     object ManagerScreen : Screen("manager_screen")
     object ReportDashboardScreen: Screen("report_dashboard_screen")
+    object InventoryDashboardScreen: Screen("inventory_dashboard_screen")
 
 }

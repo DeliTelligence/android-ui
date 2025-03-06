@@ -39,6 +39,7 @@ interface DeliSaleMapper {
             SaleType.COLD_FOOD -> GraphQLSaleType.COLD_FOOD
             SaleType.HOT_FOOD -> GraphQLSaleType.HOT_FOOD
             SaleType.SALAD -> GraphQLSaleType.SALAD
+            SaleType.UNKNOWN -> GraphQLSaleType.UNKNOWN__
             else -> throw IllegalArgumentException("Unhandled sale type: $saleType")
         }
     }

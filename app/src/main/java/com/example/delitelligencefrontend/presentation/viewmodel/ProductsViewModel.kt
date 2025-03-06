@@ -172,6 +172,7 @@ class ProductsViewModel @Inject constructor(
         // Add deliProduct's price
         totalPrice += currentDeliSale.deliProduct.calculateTotalPrice()
 
+
         // Calculate waste per value
         val wastePerValue = (currentDeliSale.differenceWeight * totalPrice)/1000
 

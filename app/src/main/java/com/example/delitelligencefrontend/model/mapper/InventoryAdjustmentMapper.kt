@@ -40,7 +40,7 @@ interface InventoryAdjustmentMapper {
         return when (adjustmentType) {
             AdjustmentType.WASTE -> GraphQLAdjustmentType.WASTE
             AdjustmentType.DELIVERY -> GraphQLAdjustmentType.DELIVERY
-            AdjustmentType.OTHER -> GraphQLAdjustmentType.OTHER
+            AdjustmentType.USED -> GraphQLAdjustmentType.USED
         }
     }
 

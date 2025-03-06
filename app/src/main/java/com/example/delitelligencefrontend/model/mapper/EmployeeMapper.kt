@@ -23,7 +23,9 @@ fun GetEmployeesQuery.GetAllEmployee.toEmployee(): EmployeeFetch {
         hireDate = hireDate ?: "Unknown",
         employeePassword = employeePassword ?: "No Password",
         totalTransactions = totalTransactions ?: 0,
-        totalWastePercentage = totalWastePercentage ?: 0.0
+        totalWastePercentage = totalWastePercentage ?: 0.0,
+        employeeEmail = employeeEmail ?: "No Email"
+
 
     )
 }
@@ -34,6 +36,7 @@ fun EmployeeLogInQuery.EmployeeLogin.toEmployee(): Employee {
         employeeFirstName = employeeFirstName ?: "No First Name",
         employeeLastName = employeeLastName ?: "No Last Name",
         hireDate = hireDate ?: "No Date",
+        employeeEmail = employeeEmail ?: "No Email",
         employeeTitle = employeeTitle?.toEmployeeTitle() ?: EmployeeTitle.EMPLOYEE,
         employeeLoggedIn = employeeLoggedIn ?: false
     )
